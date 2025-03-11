@@ -1,0 +1,115 @@
+@import "tailwindcss";
+@source "../views";
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source "../**/*.blade.php";
+@source "../**/*.js";
+@source "../**/*.vue";
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.open4{
+    background: url('/storage/app/public/fragments/open4.png');
+    width: 30px;
+    height: 30px;
+}
+
+.open2-vertical{
+    background: url('/storage/app/public/fragments/open2.png');
+    width: 30px;
+    height: 30px;
+    transform: rotate(90deg);
+}
+
+.open2-horizontal{
+    background: url('/storage/app/public/fragments/open2.png');
+    width: 30px;
+    height: 30px;
+}
+
+.open2-top-right{
+    background: url('/storage/app/public/fragments/block2.png');
+    width: 30px;
+    height: 30px;
+    transform: rotate(270deg);
+}
+
+.open2-bottom-right{
+    background: url('/storage/app/public/fragments/block2.png');
+    width: 30px;
+    height: 30px;
+    transform: rotate(0);
+}
+
+.open2-top-left{
+    background: url('/storage/app/public/fragments/block2.png');
+    width: 30px;
+    height: 30px;
+    transform: rotate(180deg);
+}
+
+.open2-bottom-left{
+    background: url('/storage/app/public/fragments/block2.png');
+    width: 30px;
+    height: 30px;
+    transform: rotate(90deg);
+}
+
+.block1-top{
+    background: url('/storage/app/public/fragments/block1.png');
+    width: 30px;
+    height: 30px;
+    transform: rotate(90deg);
+}
+
+.block1-bottom{
+    background: url('/storage/app/public/fragments/block1.png');
+    width: 30px;
+    height: 30px;
+    transform: rotate(270deg);
+}
+
+.block1-left{
+    background: url('/storage/app/public/fragments/block1.png');
+    width: 30px;
+    height: 30px;
+}
+
+.block1-right{
+    background: url('/storage/app/public/fragments/block1.png');
+    width: 30px;
+    height: 30px;
+    transform: rotate(180deg);
+}
+
+.block3-top{
+    background: url('/storage/app/public/fragments/block3.png');
+    width: 30px;
+    height: 30px;
+    transform: rotate(90deg);
+}
+
+.block3-bottom{
+    background: url('/storage/app/public/fragments/block3.png');
+    width: 30px;
+    height: 30px;
+    transform: rotate(180deg);
+}
+
+.block3-left{
+    background: url('/storage/app/public/fragments/block3.png');
+    width: 30px;
+    height: 30px;
+    transform: rotate(90deg);
+}
+
+.block3-right{
+    background: url('/storage/app/public/fragments/block3.png');
+    width: 30px;
+    height: 30px;
+    transform: rotate(90deg);
+}
