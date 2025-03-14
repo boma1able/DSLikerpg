@@ -23,7 +23,7 @@
             </span>
         </div>
         <div class="absolute flex text-xs bottom-[20%] left-1/2 transform -translate-x-1/2 py-[2px] px-[6px] bg-white text-black text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <span style="white-space: nowrap">{{ auth()->user()->name }} ({{ $character->level }})</span>
+            <span style="white-space: nowrap">{{ auth()->user()->name }} [{{ $character->level }}]</span>
         </div>
         @if ($isResting)
             <div class="absolute top-[5px] left-[5px]">

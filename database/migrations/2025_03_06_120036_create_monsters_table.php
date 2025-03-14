@@ -19,8 +19,8 @@ return new class extends Migration
             $table->integer('damage');
             $table->integer('level');
             $table->integer('experience');
-            $table->integer('position_x');
-            $table->integer('position_y');
+            $table->integer('position_x')->default(0);
+            $table->integer('position_y')->default(0);
             $table->float('hit_chance')->default(0.75);
             $table->integer('gold_min')->default(0);
             $table->integer('gold_max')->default(0);

@@ -9,8 +9,8 @@ class Character extends Model
     protected $table = 'characters';
 
     protected $fillable = [
-        'user_id', 'race', 'avatar', 'class', 'level', 'health', 'mana', 'experience',
-        'damage', 'is_online', 'gold', 'body', 'strength', 'agility', 'intelligence'
+        'user_id', 'race', 'avatar', 'class', 'level', 'health', 'max_health', 'mana', 'max_mana', 'experience',
+        'damage', 'armor', 'is_online', 'gold', 'body', 'strength', 'agility', 'intelligence'
     ];
 
     public function user()

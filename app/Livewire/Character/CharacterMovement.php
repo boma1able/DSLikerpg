@@ -10,7 +10,7 @@ class CharacterMovement extends Component
     public array $map;
     public int $lastMoveTime = 0;
     public $characterX = 5;
-    public $characterY = 5;
+    public $characterY = 4;
 
     public int $offsetX = 0;
     public int $offsetY = 0;
@@ -26,7 +26,34 @@ class CharacterMovement extends Component
     protected $listeners = [
         'updateCharacterPosition',
         'addLogMessage',
+        'monstersUpdated',
     ];
+
+    public function mount()
+    {
+        $character = auth()->user()->character;
+        $this->characterX = $character->position_x;
+        $this->characterY = $character->position_y;
+
+        $this->calculateOffset();
+    }
+
+    public function monstersUpdated($monsters)
+    {
+        $this->monsters = $monsters;
+    }
+
+    public function monsterMoved($monsterId, $newX, $newY)
+    {
+        foreach ($this->monsters as $monster) {
+            if ($monster['id'] == $monsterId) {
+                // Оновлюємо позицію монстра
+                $monster['position_x'] = $newX;
+                $monster['position_y'] = $newY;
+            }
+        }
+    }
+
 
     public function updateCharacterPosition($x, $y)
     {
@@ -75,6 +102,10 @@ class CharacterMovement extends Component
         ];
 
         // Поточна плитка, на якій стоїть персонаж
+        if (!isset($this->map[$this->characterY][$this->characterX])) {
+            $this->addLogMessage("❌ Неможливо визначити наступний крок для руху!");
+            return;
+        }
         $currentTile = $this->map[$this->characterY][$this->characterX] ?? null;
 
         // Перевірка на допустимість руху
@@ -100,57 +131,65 @@ class CharacterMovement extends Component
             // Оновлення зміщення мапи
             $this->calculateOffset();
 
+            // Збереження нових координат у базу
+            $character = auth()->user()->character;
+            $character->position_x = $this->characterX;
+            $character->position_y = $this->characterY;
+            $character->offset_x = $this->offsetX;
+            $character->offset_y = $this->offsetY;
+
+            $character->save();
+
             // Виведення нової позиції персонажа
             $this->dispatch('characterMoved', $this->characterX, $this->characterY);
 
             // Виведення нового зміщення мапи
             $this->dispatch('updateMap', $this->map, $this->offsetX, $this->offsetY);
 
-//            dd($this->monsters);
-            // 🔥 Перевірка наявності монстрів та вивід повідомлення
-            $monstersHere = collect($this->monsters)
-                ->filter(fn($m) => (int)$m['position_x'] === (int)$this->characterX && (int)$m['position_y'] === (int)$this->characterY);
+            $this->dispatch('monstersUpdated', $this->monsters);
 
-            if ($monstersHere->isNotEmpty()) {
-                foreach ($monstersHere as $monster) {
+            // Перевірка на зіткнення
+            foreach ($this->monsters as $monster) {
+                if ($monster['position_x'] === $this->characterX && $monster['position_y'] === $this->characterY) {
                     $message = MonsterEncounterService::getMessage($monster['name']);
-                    $this->addLogMessage($message);
+                    $this->addLogMessage("<span class='text-gray-400'>$message</span>");
                 }
             }
         }
     }
 
+    public function getCurrentTime()
+    {
+        return now()->format('H:i:s');
+    }
+
     public function addLogMessage($message)
     {
-        $currentTime = now()->format('H:i:s');
-        $this->log[] = "<span class='inline-block w-[45px] text-[#a0a0a0] mr-2 text-xs'>{$currentTime}</span>{$message}";
+        $this->log[] = "<span class='inline-block w-[45px] text-[#a0a0a0] mr-2 text-xs'>{$this->getCurrentTime()}</span>{$message}";
         $this->dispatch('logUpdated', $this->log);
     }
 
     // Функція для обчислення зсуву
     private function calculateOffset()
     {
-        $this->offsetX = -($this->characterX * 1);
-        $this->offsetY = -($this->characterY * 1);
+        $this->offsetX = -$this->characterX;
+        $this->offsetY = -$this->characterY;
     }
 
     public function moveByKey($key)
     {
-        switch ($key) {
-            case 'ArrowUp':
-                $this->move('up');
-                break;
-            case 'ArrowDown':
-                $this->move('down');
-                break;
-            case 'ArrowLeft':
-                $this->move('left');
-                break;
-            case 'ArrowRight':
-                $this->move('right');
-                break;
+        $directions = [
+            'ArrowUp' => 'up',
+            'ArrowDown' => 'down',
+            'ArrowLeft' => 'left',
+            'ArrowRight' => 'right'
+        ];
+
+        if (isset($directions[$key])) {
+            $this->move($directions[$key]);
         }
     }
+
 
     public function resting($key)
     {

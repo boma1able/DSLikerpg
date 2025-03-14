@@ -58,7 +58,9 @@
                 <label>Клас</label>
                 <select wire:model="class" required class="border p-2">
                     <option >Choose your role</option>
+                    <option value="Tank">Tank</option>
                     <option value="Warrior">Warrior</option>
+                    <option value="Assassin">Assassin</option>
                     <option value="Mage">Mage</option>
                 </select>
             </div>

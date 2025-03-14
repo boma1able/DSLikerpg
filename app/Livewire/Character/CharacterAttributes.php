@@ -13,6 +13,8 @@ class CharacterAttributes extends Component
     public $agility;
     public $intelligence;
 
+    protected $listeners = ['updateCharacterAttributes' => 'updateCharacterAttributes'];
+
     public function mount($character)
     {
         // Ініціалізуємо атрибути з переданого персонажа
@@ -26,26 +28,30 @@ class CharacterAttributes extends Component
     // Функції для розрахунку бонусів на рівень
     public function calculateHealthFromBody()
     {
-        $healthPerLevel = 3; // Кожен пункт body дає 3 HP на рівень
-        return round((10 + ($this->character['level'] * 5)) * 0.8) * $this->body * $healthPerLevel;
+        $healthPerLevel = 2;
+        $baseHealth = (10 + pow($this->character['level'], 1.5) * 5) * 0.8;
+        return $totalHealth = round($baseHealth * (1 + ($this->body * 0.2)) * $healthPerLevel);
     }
 
     public function calculateManaFromIntelligence()
     {
-        $manaPerLevel = 2; // Кожен пункт intelligence дає 2 мани на рівень
-        return round((5 + ($this->character['level'] * 3)) * 0.8) * $this->intelligence * $manaPerLevel;
+        $manaPerLevel = 1;
+        $baseMana = (5 + pow($this->character['level'], 1.5) * 3) * 0.8;
+        return round($baseMana * (1 + ($this->intelligence * 0.2)) * $manaPerLevel);
     }
 
     public function calculateDamageFromStrength()
     {
-        $damagePerLevel = 1; // Кожен пункт strength дає 1 шкоди на рівень
-        return round((2 + round($this->character['level'] * 1.5)) * 0.8) * $this->strength * $damagePerLevel;
+        $damagePerLevel = 0.5;
+        $baseDamage = (2 + pow($this->character['level'], 1.5) * 1.5) * 0.8;
+        return round($baseDamage * (1 + ($this->strength * 0.2)) * $damagePerLevel);
     }
 
     public function calculateArmorFromAgility()
     {
-        $armorPerLevel = 1.5; // Кожен пункт agility дає 1.5 броні на рівень
-        return round($this->character['level'] * 1.5) * 0.8 * $this->agility * $armorPerLevel;
+        $armorPerLevel = 1;
+        $baseArmor = (1 + pow($this->character['level'], 1.5) * 1.2) * 0.8;
+        return round($baseArmor * (1 + ($this->agility * 0.2)) * $armorPerLevel);
     }
 
     // Оновлення персонажа з новими значеннями атрибутів
@@ -85,25 +91,12 @@ class CharacterAttributes extends Component
         $this->character = $character->toArray();
 
         $this->dispatch('characterUpdated', character: $this->character);
-
     }
 
-    public function increment($attribute)
+    public function closeModal()
     {
-        if (property_exists($this, $attribute)) {
-            $this->$attribute++;
-            $this->updateCharacterAttributes();
-        }
+        $this->dispatch('closeStats');
     }
-
-    public function decrement($attribute)
-    {
-        if (property_exists($this, $attribute) && $this->$attribute > 0) {
-            $this->$attribute--;
-            $this->updateCharacterAttributes();
-        }
-    }
-
 
     public function render()
     {

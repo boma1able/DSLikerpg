@@ -17,21 +17,23 @@ return new class extends Migration
             $table->string('race');
             $table->string('avatar');
             $table->string('class');
-            $table->integer('health')->default(108);
-            $table->integer('max_health')->default(108);
-            $table->integer('mana')->default(36);
-            $table->integer('max_mana')->default(36);
+            $table->integer('health')->nullable();
+            $table->integer('max_health')->nullable();
+            $table->integer('mana')->nullable();
+            $table->integer('max_mana')->nullable();
             $table->integer('experience')->default(0);
-            $table->integer('body')->default(3);  // Тіло
-            $table->integer('strength')->default(3);  // Сила
-            $table->integer('agility')->default(3);  // Ловкість
-            $table->integer('intelligence')->default(3);  // Розум
+            $table->integer('body')->nullable();
+            $table->integer('strength')->nullable();
+            $table->integer('agility')->nullable();
+            $table->integer('intelligence')->nullable();
             $table->integer('level')->default(1);
-            $table->integer('damage')->default(5);
-            $table->integer('armor')->default(0);
+            $table->integer('damage')->nullable();
+            $table->integer('armor')->nullable();
             $table->integer('gold')->default(0);
-            $table->integer('spawn_x')->default(3);
-            $table->integer('spawn_y')->default(3);
+            $table->integer('position_x')->default(5);
+            $table->integer('position_y')->default(4);
+            $table->integer('offset_x')->default(-5);
+            $table->integer('offset_y')->default(-4);
             $table->boolean('is_online')->default(false);
             $table->timestamps();
         });

@@ -11,10 +11,10 @@ class CharacterCard extends Component
     public $level;
     public $requiredExperience;
 
-    public $healthBonus;
-    public $manaBonus;
-    public $damageBonus;
-    public $armorBonus;
+//    public $healthBonus;
+//    public $manaBonus;
+//    public $damageBonus;
+//    public $armorBonus;
 
     public bool $isResting = false;
 
@@ -27,10 +27,8 @@ class CharacterCard extends Component
 
     public function mount()
     {
-        $this->character = auth()->user()->character;
-        $this->experience = $this->character->experience;
-        $this->level = $this->character->level;
-        $this->requiredExperience = $this->getRequiredExperienceForLevel($this->level + 1);
+//        $this->character = auth()->user()->character;
+        $this->updateCharacter();
     }
 
     public function updateCharacter()

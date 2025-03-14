@@ -1,42 +1,25 @@
-<div class="p-4 bg-white rounded shadow-md">
+<div class="w-140 relative">
     <h2 class="text-xl text-gray-500 font-bold mb-4">Атрибути персонажа</h2>
 
-    <div class="mb-4">
+    <div class="flex mb-4">
         <label for="body" class="block">Тіло:</label>
-        <div class="flex items-center">
-            <button wire:click="increment('body')" class="bg-green-500 text-white px-2 py-1 rounded">+</button>
-            <input type="number" id="body" wire:model="body" class="mx-2 p-2 border border-gray-300 rounded w-16 text-center" readonly>
-            <button wire:click="decrement('body')" class="bg-red-500 text-white px-2 py-1 rounded">-</button>
-        </div>
+        <p class="mx-2text-center">{{ $body }}</p>
     </div>
 
-    <div class="mb-4">
+    <div class="flex mb-4">
         <label for="strength" class="block">Сила:</label>
-        <div class="flex items-center">
-            <button wire:click="increment('strength')" class="bg-green-500 text-white px-2 py-1 rounded">+</button>
-            <input type="number" id="strength" wire:model="strength" class="mx-2 p-2 border border-gray-300 rounded w-16 text-center" readonly>
-            <button wire:click="decrement('strength')" class="bg-red-500 text-white px-2 py-1 rounded">-</button>
-        </div>
+        <p class="mx-2 text-center">{{ $strength }}</p>
     </div>
 
-    <div class="mb-4">
+    <div class="flex mb-4">
         <label for="agility" class="block">Ловкість:</label>
-        <div class="flex items-center">
-            <button wire:click="increment('agility')" class="bg-green-500 text-white px-2 py-1 rounded">+</button>
-            <input type="number" id="agility" wire:model="agility" class="mx-2 p-2 border border-gray-300 rounded w-16 text-center" readonly>
-            <button wire:click="decrement('agility')" class="bg-red-500 text-white px-2 py-1 rounded">-</button>
-        </div>
+        <p class="mx-2 text-center">{{ $agility }}</p>
     </div>
 
-    <div class="mb-4">
+    <div class="flex mb-4">
         <label for="intelligence" class="block">Розум:</label>
-        <div class="flex items-center">
-            <button wire:click="increment('intelligence')" class="bg-green-500 text-white px-2 py-1 rounded">+</button>
-            <input type="number" id="intelligence" wire:model="intelligence" class="mx-2 p-2 border border-gray-300 rounded w-16 text-center" readonly>
-            <button wire:click="decrement('intelligence')" class="bg-red-500 text-white px-2 py-1 rounded">-</button>
-        </div>
+        <p class="mx-2 text-center">{{ $intelligence }}</p>
     </div>
-
 
     <div class="mt-6">
         <h3 class="font-bold">Бонуси:</h3>
@@ -47,4 +30,10 @@
             <li>Броня: {{ $this->calculateArmorFromAgility() }} броні</li>
         </ul>
     </div>
+
+    <button wire:click="closeModal" class="absolute top-2 right-2 cursor-pointer">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+        </svg>
+    </button>
 </div>
