@@ -163,6 +163,13 @@
         </div>
 
 
+
+        <div class="w-auto m-5 p-5 bg-gray-400">
+{{--            <livewire:inventory-list/>--}}
+            <livewire:inventory-equipment/>
+
+        </div>
+
     </div>
 
     <script>

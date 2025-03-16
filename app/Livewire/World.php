@@ -142,6 +142,8 @@ class World extends Component
         ];
 
         $this->dispatch('updateCharacterPosition', $this->characterX, $this->characterY);
+
+        $this->dispatch('refresh-inventory');
     }
 
     public function handleUpdateMap($map, $offsetX, $offsetY)
@@ -450,10 +452,10 @@ class World extends Component
         if (rand(0, 100) / 100 <= $characterHitChance) {
             // Якщо персонаж потрапив
             $monster['health'] -= $this->character['damage'];
-            $this->addLogMessage("<span class='text-red-600'>Ви вдарили {$monster['name']} на {$this->character['damage']} HP.</span>");
+            $this->addLogMessage("<span class='text-blue-600'>Ви вдарили {$monster['name']} на {$this->character['damage']} HP.</span>");
         } else {
             // Якщо персонаж не потрапив
-            $this->addLogMessage("<span class='text-red-600'>Ви промахнулися по {$monster['name']}.</span>");
+            $this->addLogMessage("<span class='text-blue-600'>Ви промахнулися по {$monster['name']}.</span>");
         }
 
         // Оновлюємо HP персонажа в масиві після отриманого пошкодження
@@ -503,10 +505,10 @@ class World extends Component
         if (rand(0, 100) / 100 <= $monsterHitChance) {
             // Якщо монстр потрапив
             $this->character['health'] -= $monster['damage'];
-            $this->addLogMessage("<span class='text-red-600'>{$monster['name']} вдарив вас на {$monster['damage']} HP.</span>");
+            $this->addLogMessage("<span class='text-blue-800'>{$monster['name']} вдарив вас на {$monster['damage']} HP.</span>");
         } else {
             // Якщо монстр не потрапив
-            $this->addLogMessage("<span class='text-red-600'>{$monster['name']} промахнувся.</span>");
+            $this->addLogMessage("<span class='text-blue-600'>{$monster['name']} промахнувся.</span>");
         }
 
         // Якщо гравець мертвий

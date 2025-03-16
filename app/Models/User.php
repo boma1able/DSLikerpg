@@ -50,4 +50,14 @@ class User extends Authenticatable
     {
         return $this->hasOne(Character::class);
     }
+
+    public function inventory()
+    {
+        return $this->hasOne(Inventory::class);
+    }
+
+    public function equipment()
+    {
+        return $this->hasMany(Equipment::class);
+    }
 }
