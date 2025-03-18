@@ -19,6 +19,9 @@
                                 <span class="relative z-1 w-full h-[8px] items-center" style="line-height: 12px; font-weight: 600"></span>
                                 <span style="position: absolute; top: 0; left: 0; width: {{ ($monster['max_health'] > 0 && $monster['health'] > 0) ? ($monster['health'] / $monster['max_health']) * 100 : 0 }}%; background: linear-gradient(90deg, #fc6363 0%, #da2d2d 70%, #a00404 90%); height: 100%;"></span>
                             </div>
+                            <span>
+                                {{ $monster['health']}}
+                            </span>
                             <div class="absolute w-auto left-[80%] top-[80%] border border-gray-400 bg-white p-2 text-xs transition-transform duration-0 opacity-100 z-[-1] group-hover:opacity-100 group-hover:z-1"
                                  :style="'left: ' + (x + 14) + 'px; top: ' + (y + 14) + 'px'"
                             >
@@ -127,7 +130,7 @@
                             <livewire:gold-manager :characterId="$character['id']"/>
 
                         </li>
-{{--                        <li><span style="display:inline-block;width: 100px;">Damage:</span>{{ $character['damage'] }}</li>--}}
+                        <li><span style="display:inline-block;width: 100px;">Damage:</span>{{ $character['damage'] }}</li>
                     </ul>
                 </div>
 

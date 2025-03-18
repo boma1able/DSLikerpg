@@ -49,8 +49,8 @@ class World extends Component
     public $showStats = false;
 
     protected $listeners = [
-//        'closeStats',
-        'updateCharacterInMainComponent' => 'updateCharacterInDatabase',
+        'closeStats',
+//        'updateCharacterInMainComponent' => 'updateCharacterInDatabase',
         'characterMoved' => 'updateCharacterPositionForMonster',
         'updateMap' => 'handleUpdateMap',
         'resting' => 'startResting',
@@ -240,10 +240,9 @@ class World extends Component
 
                 // Перевірка, чи є в цій точці об'єкт
                 $objectAtPosition = collect($this->objects)->first(fn($obj) => $obj['position_x'] === $randomPosition['x'] && $obj['position_y'] === $randomPosition['y']);
-
             } while ($objectAtPosition); // Повторюємо, поки точка зайнята
 
-            // Додаємо монстра у список
+            // Додаємо монстра до карти, без унікального ID
             $this->monsters[] = [
                 'id' => $monster['id'],
                 'name' => $monster['name'],
@@ -268,20 +267,11 @@ class World extends Component
         }
     }
 
-    public function spawnMonsters($count = 20, $specificMonsterId = null)
+    public function spawnMonsters($specificMonsterId = null)
     {
         $monsters = $specificMonsterId
             ? Monster::where('id', $specificMonsterId)->get()->toArray()
-            : Monster::inRandomOrder()->get()->toArray();
-
-        $totalMonsters = count($monsters);
-        if ($totalMonsters > 0 && $totalMonsters < $count) {
-            while (count($monsters) < $count) {
-                $monsters[] = $monsters[array_rand($monsters)];
-            }
-        }
-
-        $monsters = array_slice($monsters, 0, $count);
+            : Monster::all()->toArray();
 
         $this->addMonstersToMap($monsters);
     }
@@ -300,6 +290,7 @@ class World extends Component
                 'position_y' => $randomPosition['y'],
             ]);
 
+            // Додаємо респавненого монстра на карту
             $this->addMonstersToMap([[
                 'id' => $monster->id,
                 'name' => $monster->name,
@@ -311,11 +302,12 @@ class World extends Component
                 'hit_chance' => $monster->hit_chance,
                 'position_x' => $randomPosition['x'],
                 'position_y' => $randomPosition['y'],
-                'gold_min' => $monster['gold_min'],
-                'gold_max' => $monster['gold_max'],
+                'gold_min' => $monster->gold_min,
+                'gold_max' => $monster->gold_max,
             ]], true);
         }
     }
+
 
     public function moveMonsters()
     {
@@ -458,14 +450,6 @@ class World extends Component
             $this->addLogMessage("<span class='text-blue-600'>Ви промахнулися по {$monster['name']}.</span>");
         }
 
-        // Оновлюємо HP персонажа в масиві після отриманого пошкодження
-        $this->character['health'] -= $monster['damage'];
-
-        // Оновлюємо базу і відправляємо відразу після зміни
-
-        $this->dispatch('updateCharacterAttributes');
-        $this->updateCharacterInDatabase();
-
         // Якщо монстр помер
         if ($monster['health'] <= 0) {
             $this->addLogMessage("Ви перемогли {$monster['name']}!");
@@ -508,7 +492,7 @@ class World extends Component
             $this->addLogMessage("<span class='text-blue-800'>{$monster['name']} вдарив вас на {$monster['damage']} HP.</span>");
         } else {
             // Якщо монстр не потрапив
-            $this->addLogMessage("<span class='text-blue-600'>{$monster['name']} промахнувся.</span>");
+            $this->addLogMessage("<span class='text-green-600'>{$monster['name']} промахнувся.</span>");
         }
 
         // Якщо гравець мертвий
@@ -518,6 +502,9 @@ class World extends Component
             $this->dispatch('showReviveButton');
             $this->showReviveModal = true;
         }
+
+        $this->updateCharacterInDatabase();
+        $this->dispatch('updateCharacterAttributes')->self();
     }
 
     public function levelUp()
@@ -544,6 +531,8 @@ class World extends Component
             }
             $character->experience = $this->experience; // Оновлюємо досвід
             $character->save(); // Зберігаємо зміни в базі
+
+            $this->dispatch('characterUpdated');
         }
     }
 
@@ -584,24 +573,19 @@ class World extends Component
 // Оновлюємо рівень персонажа, якщо необхідно
     public function checkAndLevelUp(Character $character)
     {
-        $requiredExperience = $this->getRequiredExperienceForLevel($character->level + 1);
-
-        while ($character->experience >= $requiredExperience) {
-            $character->experience -= $requiredExperience;
+        while ($character->experience >= $this->getRequiredExperienceForLevel($character->level + 1)) {
+            $character->experience -= $this->getRequiredExperienceForLevel($character->level + 1);
             $character->level++;
 
-            // Оновлюємо атрибути та зберігаємо в базі лише один раз
             $this->dispatch('updateCharacterAttributes');
 
-            $this->updateCharacterInDatabase();
-
-            // Логування події
+            // Логування перед збереженням
             $this->addLogMessage("<span class='text-green-600'>Вітаю! Ви досягли рівня {$character->level}!</span>");
-
-            // Перевірка, чи вистачає досвіду для кількох рівнів
-            $requiredExperience = $this->getRequiredExperienceForLevel($character->level + 1);
         }
+
+        $character->save();
     }
+
 
 
 // Оновлюємо досвід для відображення
@@ -715,7 +699,7 @@ class World extends Component
     public function logout()
     {
         Auth::logout();
-        return redirect()->route('login');
+        return redirect()->to(route('login'));
     }
 
     public function openStats()
