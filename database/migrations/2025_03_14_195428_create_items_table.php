@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('level');
             $table->text('description')->nullable();
             $table->enum('type', [
-                'weapon', 'shield', 'helmet', 'tunic', 'gloves', 'leggings', 'boots',
-                'ring', 'necklace', 'cloak', 'belt', 'potion', 'ingredient'
+                'weapon', 'shield', 'helmet', 'chest', 'gloves', 'leggings', 'boots',
+                'ring', 'amulet', 'necklace', 'cloak', 'belt', 'potion', 'ingredient'
             ]);
             $table->enum('rarity', ['common', 'uncommon', 'rare', 'epic', 'legendary'])->default('common');
             $table->boolean('stackable')->default(false);

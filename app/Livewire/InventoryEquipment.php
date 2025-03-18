@@ -39,31 +39,43 @@ class InventoryEquipment extends Component
             ->get();
     }
 
+    // Додайте новий слот для шолома в методі handleDrop
     public function handleDrop($itemId)
     {
         $item = Item::find($itemId);
         $characterId = $this->user->character->id;
 
-        if ($item) {
-            // Додаємо в еквіпмент
-            Equipment::create([
-                'user_id' => $this->user->id,
-                'character_id' => $characterId,
-                'item_id' => $item->id,
-                'slot' => 'main_hand',
-            ]);
-
-            // Видаляємо предмет з інвентаря
-            $this->user->inventory->items()->detach($item->id);
-
-            // Оновлюємо списки
-            $this->loadEquipment(); // Оновлюємо еквіпмент
-            $this->items = $this->user->inventory->items; // Оновлюємо інвентар
-
-            // Відправляємо подію для оновлення UI
-            $this->dispatch('itemEquipped', $item->id);
+        if (!$item) {
+            return;
         }
+
+        // Масив дозволених слотів
+        $allowedSlots = ['helmet', 'weapon', 'chest', 'cloak', 'shield', 'gloves', 'leggings', 'boots', 'belt', 'ring', 'amulet', 'necklace', 'ingredient'];
+
+        // Перевіряємо, чи тип предмета входить у дозволені слоти
+        if (!in_array($item->type, $allowedSlots)) {
+            return;
+        }
+
+        // Додаємо в еквіпмент
+        Equipment::create([
+            'user_id' => $this->user->id,
+            'character_id' => $characterId,
+            'item_id' => $item->id,
+            'slot' => $item->type, // Використовуємо напряму
+        ]);
+
+        // Видаляємо предмет з інвентаря
+        $this->user->inventory->items()->detach($item->id);
+
+        // Оновлюємо списки
+        $this->loadEquipment();
+        $this->items = $this->user->inventory->items;
+
+        // Відправляємо подію для оновлення UI
+        $this->dispatch('itemEquipped', $item->id);
     }
+
 
     public function unequipItem($itemId)
     {
@@ -89,8 +101,6 @@ class InventoryEquipment extends Component
             $this->dispatch('item-unequipped', ['itemId' => $itemId]);
         }
     }
-
-
 
     public function render()
     {

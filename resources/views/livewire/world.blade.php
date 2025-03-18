@@ -5,7 +5,10 @@
 
             <livewire:character.character-card/>
 
-            <div class="w-[83px] border-r-[3px] border-[#eee]">
+            <div class="w-[83px] border-r-[3px] border-[#eee]"
+                 x-data="{ x: 0, y: 0 }"
+                 @mousemove="x = $event.offsetX; y = $event.offsetY"
+            >
                 @foreach ($monsters as $monster)
                     @if (-$monster['position_x'] === $offsetX && -$monster['position_y'] === $offsetY)
                         <div wire:click="startBattle({{ $monster['id'] }})" class="group" style="position:relative;">
@@ -16,7 +19,9 @@
                                 <span class="relative z-1 w-full h-[8px] items-center" style="line-height: 12px; font-weight: 600"></span>
                                 <span style="position: absolute; top: 0; left: 0; width: {{ ($monster['max_health'] > 0 && $monster['health'] > 0) ? ($monster['health'] / $monster['max_health']) * 100 : 0 }}%; background: linear-gradient(90deg, #fc6363 0%, #da2d2d 70%, #a00404 90%); height: 100%;"></span>
                             </div>
-                            <div class="absolute flex text-xs bottom-[20%] left-1/2 transform -translate-x-1/2 py-[2px] px-[6px] bg-white text-black text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <div class="absolute w-auto left-[80%] top-[80%] border border-gray-400 bg-white p-2 text-xs transition-transform duration-0 opacity-100 z-[-1] group-hover:opacity-100 group-hover:z-1"
+                                 :style="'left: ' + (x + 14) + 'px; top: ' + (y + 14) + 'px'"
+                            >
                                 <span style="white-space: nowrap">{{ $monster['name'] }} [{{ $monster['level'] }}]</span>
                             </div>
                         </div>
@@ -165,9 +170,7 @@
 
 
         <div class="w-auto m-5 p-5 bg-gray-400">
-{{--            <livewire:inventory-list/>--}}
             <livewire:inventory-equipment/>
-
         </div>
 
     </div>

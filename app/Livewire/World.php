@@ -49,7 +49,7 @@ class World extends Component
     public $showStats = false;
 
     protected $listeners = [
-        'closeStats',
+//        'closeStats',
         'updateCharacterInMainComponent' => 'updateCharacterInDatabase',
         'characterMoved' => 'updateCharacterPositionForMonster',
         'updateMap' => 'handleUpdateMap',
