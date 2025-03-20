@@ -31,7 +31,11 @@
         >
             <span style="white-space: nowrap">{{ auth()->user()->name }} [{{ $character->level }}]</span>
         </div>
-
+        @if($character->skill_points)
+            <div class="absolute top-1 right-1">
+                <svg viewBox="0 0 72 72" class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="#ff1a1a" transform="rotate(45)" stroke="#ff1a1a"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g id="color"> <path fill="#4aeb47" d="m58.14 21.78-7.76-8.013-14.29 14.22-14.22-14.22-8.013 8.013 14.36 14.22-14.36 14.22 8.014 8.013 14.22-14.22 14.29 14.22 7.76-8.013-14.22-14.22z"></path> </g> <g id="hair"></g> <g id="skin"></g> <g id="skin-shadow"></g> <g id="line"> <path fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2" d="m58.14 21.78-7.76-8.013-14.29 14.22-14.22-14.22-8.013 8.013 14.35 14.22-14.35 14.22 8.014 8.013 14.22-14.22 14.29 14.22 7.76-8.013-14.22-14.22z"></path> </g> </g></svg>
+            </div>
+        @endif
         @if ($isResting)
             <div class="absolute top-[5px] left-[5px]">
                 <svg class="w-4 h-4" viewBox="0 0 48 48" stroke="#00f3ff" stroke-width="4" xmlns="http://www.w3.org/2000/svg">

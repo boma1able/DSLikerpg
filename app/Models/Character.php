@@ -10,7 +10,7 @@ class Character extends Model
 
     protected $fillable = [
         'user_id', 'race', 'avatar', 'class', 'level', 'health', 'max_health', 'mana', 'max_mana', 'experience',
-        'damage', 'armor', 'is_online', 'gold', 'body', 'strength', 'agility', 'intelligence'
+        'damage', 'armor', 'is_online', 'gold', 'body', 'strength', 'agility', 'intelligence', 'skill_points',
     ];
 
     public function user()
@@ -26,6 +26,11 @@ class Character extends Model
     public function equipment()
     {
         return $this->hasOne(Equipment::class);
+    }
+
+    public function schools()
+    {
+        return $this->hasMany(School::class, 'character_id'); // Вказуємо кастомну назву таблиці
     }
 
 }

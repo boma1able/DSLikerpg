@@ -22,13 +22,14 @@ return new class extends Migration
             $table->integer('mana')->nullable();
             $table->integer('max_mana')->nullable();
             $table->integer('experience')->default(0);
+            $table->integer('level')->default(1);
+            $table->integer('skill_points')->default(0);
+            $table->integer('damage')->nullable();
+            $table->integer('armor')->nullable();
             $table->integer('body')->nullable();
             $table->integer('strength')->nullable();
             $table->integer('agility')->nullable();
             $table->integer('intelligence')->nullable();
-            $table->integer('level')->default(1);
-            $table->integer('damage')->nullable();
-            $table->integer('armor')->nullable();
             $table->integer('gold')->default(0);
             $table->integer('position_x')->default(5);
             $table->integer('position_y')->default(4);

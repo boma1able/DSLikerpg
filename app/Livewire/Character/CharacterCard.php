@@ -9,12 +9,8 @@ class CharacterCard extends Component
     public $character;
     public $experience;
     public $level;
+    public $skill_points;
     public $requiredExperience;
-
-//    public $healthBonus;
-//    public $manaBonus;
-//    public $damageBonus;
-//    public $armorBonus;
 
     public bool $isResting = false;
 
@@ -23,12 +19,13 @@ class CharacterCard extends Component
         'updateHealth' => 'handleupdateHealth',
         'restStarted' => 'handleRestingStatus',
         'stopResting' => 'handleRestingStatus',
+        'schoolUpdated' => 'updateSchool',
     ];
 
     public function mount()
     {
-//        $this->character = auth()->user()->character;
         $this->updateCharacter();
+        $this->updateSchool($this->character->max_health);
     }
 
     public function updateCharacter()
@@ -36,7 +33,13 @@ class CharacterCard extends Component
         $this->character = auth()->user()->character;
         $this->experience = $this->character->experience;
         $this->level = $this->character->level;
+        $this->skill_points = $this->character->skill_points;
         $this->requiredExperience = $this->getRequiredExperienceForLevel($this->level + 1);
+    }
+
+    public function updateSchool($newMaxHealth)
+    {
+        $this->character->max_health = $newMaxHealth;
     }
 
     private function getRequiredExperienceForLevel($level)

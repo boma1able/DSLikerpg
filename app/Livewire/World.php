@@ -106,6 +106,7 @@ class World extends Component
             'health' => $character->health,
             'max_health' => $character->max_health,
             'experience' => $character->experience,
+            'skill_points' => $character->skill_points,
             'mana' => $character->mana,
             'max_mana' => $character->max_mana,
             'level' => $character->level,
@@ -140,6 +141,14 @@ class World extends Component
             'position_y' => 4,
             'type' => 'star',
         ];
+
+        $this->objects[] = [
+            'name' => 'Скіли',
+            'position_x' => 4,
+            'position_y' => 3,
+            'type' => 'skills',
+        ];
+
 
         $this->dispatch('updateCharacterPosition', $this->characterX, $this->characterY);
 
@@ -458,8 +467,7 @@ class World extends Component
             $this->experience += $xpGained;
             $this->addLogMessage("Ви отримали {$xpGained} exp!");
 
-            // Оновлюємо досвід і рівень персонажа
-            $this->updateCharacterLevel();
+            $this->dispatch('characterUpdated');
 
             $goldAmount = rand($monster['gold_min'], $monster['gold_max']);
             $this->character['gold'] += $goldAmount;
@@ -504,59 +512,46 @@ class World extends Component
         }
 
         $this->updateCharacterInDatabase();
-        $this->dispatch('updateCharacterAttributes')->self();
     }
 
     public function levelUp()
     {
         $this->character['level']++;
+        $this->character['skill_points']++;
+        $this->updateCharacterInDatabase(); // Оновлюємо дані в базі
 
-        $this->dispatch('updateCharacterAttributes');
-
-        $this->updateCharacterInDatabase();
-
-        // Відправка події, що рівень підвищено
-        $this->dispatch('levelUp');
     }
 
-
+// Оновлення персонажа в базі даних
     protected function updateCharacterInDatabase()
     {
         $character = Character::find($this->character['id']);
         if ($character) {
-            $character->health = $this->character['health']; // Оновлюємо здоров'я
-            // Переконатися, що здоров'я не менше 0
-            if ($this->character['health'] < 0) {
-                $this->character['health'] = 0;
-            }
-            $character->experience = $this->experience; // Оновлюємо досвід
-            $character->save(); // Зберігаємо зміни в базі
+            // Оновлення атрибутів
+            $character->health = max(0, $this->character['health']); // Не даємо значенню бути менше 0
+            $character->experience = $this->experience;
+            $character->skill_points = $this->character['skill_points'];
+            $character->save(); // Зберігаємо в базу
 
-            $this->dispatch('characterUpdated');
         }
     }
 
-
-
+// Обчислення досвіду для монстра
     public function calculateExperienceGain($character, $monster): int
     {
         $baseExp = $monster['experience'];
         $levelDifference = $monster['level'] - $character['level'];
 
-        // Різниця рівнів між персонажем і монстром
+        // Модифікатор для досвіду
         $modifier = $levelDifference > 0 ? 1 + ($levelDifference * 0.1) : max(0, 1 + ($levelDifference * 0.2));
         $expGain = (int) round($baseExp * $modifier);
 
         // Оновлюємо досвід персонажа
-        $character = Character::find($character['id']); // Завантажуємо модель з бази даних
-
+        $character = Character::find($character['id']);
         if ($character) {
-            // Тепер $character — це об'єкт моделі, і можна змінювати атрибути
             $character->experience += $expGain;
-            $this->checkAndLevelUp($character);
-
-            // Зберігаємо зміни в базу
-            $character->save();
+            $this->checkAndLevelUp($character); // Перевіряємо підвищення рівня
+            $character->save(); // Зберігаємо зміни
         }
 
         return $expGain;
@@ -576,27 +571,13 @@ class World extends Component
         while ($character->experience >= $this->getRequiredExperienceForLevel($character->level + 1)) {
             $character->experience -= $this->getRequiredExperienceForLevel($character->level + 1);
             $character->level++;
+            $character->skill_points++;
 
-            $this->dispatch('updateCharacterAttributes');
-
-            // Логування перед збереженням
-            $this->addLogMessage("<span class='text-green-600'>Вітаю! Ви досягли рівня {$character->level}!</span>");
+            // Логування рівня
+            $this->addLogMessage("<span class='text-green-600'>Вітаю! Ви досягли рівня {$character->level}, також у вас {$character->skill_points} sp</span>");
         }
 
-        $character->save();
-    }
-
-
-
-// Оновлюємо досвід для відображення
-    public function updateCharacterLevel()
-    {
-        $character = Character::find($this->character['id']);
-        if ($character) {
-            $this->experience = $character->experience;
-            $this->level = $character->level;
-            $this->requiredExperience = $this->getRequiredExperienceForLevel($this->level + 1);
-        }
+        $character->save(); // Збереження
     }
 
     public function updateCharacterAfterHit(Character $character, int $damageReceived, int $manaUsed, int $expGain)

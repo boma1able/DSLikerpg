@@ -21,15 +21,26 @@
         <p class="mx-2 text-center">{{ $intelligence }}</p>
     </div>
 
-    <div class="mt-6">
-        <h3 class="font-bold">Бонуси:</h3>
+{{--    <div class="mt-6">--}}
+{{--        <h3 class="font-bold">Бонуси:</h3>--}}
+{{--        <ul>--}}
+{{--            <li>Здоров'я: {{ $this->calculateHealthFromBody() }} HP</li>--}}
+{{--            <li>Мана: {{ $this->calculateManaFromIntelligence() }} мана</li>--}}
+{{--            <li>Шкода: {{ $this->calculateDamageFromStrength() }} шкоди</li>--}}
+{{--            <li>Броня: {{ $this->calculateArmorFromAgility() }} броні</li>--}}
+{{--        </ul>--}}
+{{--    </div>--}}
+    <br>
+    <div>
         <ul>
-            <li>Здоров'я: {{ $this->calculateHealthFromBody() }} HP</li>
-            <li>Мана: {{ $this->calculateManaFromIntelligence() }} мана</li>
-            <li>Шкода: {{ $this->calculateDamageFromStrength() }} шкоди</li>
-            <li>Броня: {{ $this->calculateArmorFromAgility() }} броні</li>
+            <li>Здоров'я: {{ $this->character['max_health'] }} HP</li>
+            <li>Мана: {{ $this->character['max_mana'] }} мана</li>
+            <li>Шкода: {{ $this->character['damage'] }} шкоди</li>
+            <li>Броня: {{ $this->character['armor'] }} броні</li>
+            <li>Скілпоінти: {{ $character->skill_points }}</li>
         </ul>
     </div>
+
 
     <button wire:click="closeModal" class="absolute top-2 right-2 cursor-pointer">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">

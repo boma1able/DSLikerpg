@@ -19,9 +19,6 @@
                                 <span class="relative z-1 w-full h-[8px] items-center" style="line-height: 12px; font-weight: 600"></span>
                                 <span style="position: absolute; top: 0; left: 0; width: {{ ($monster['max_health'] > 0 && $monster['health'] > 0) ? ($monster['health'] / $monster['max_health']) * 100 : 0 }}%; background: linear-gradient(90deg, #fc6363 0%, #da2d2d 70%, #a00404 90%); height: 100%;"></span>
                             </div>
-                            <span>
-                                {{ $monster['health']}}
-                            </span>
                             <div class="absolute w-auto left-[80%] top-[80%] border border-gray-400 bg-white p-2 text-xs transition-transform duration-0 opacity-100 z-[-1] group-hover:opacity-100 group-hover:z-1"
                                  :style="'left: ' + (x + 14) + 'px; top: ' + (y + 14) + 'px'"
                             >
@@ -105,12 +102,12 @@
                                                 </span>
                                             @endif
 
-                                            @if ($object = collect($objects)->first(fn($obj) => $obj['position_x'] === $x && $obj['position_y'] === $y))
+                                            @foreach(collect($objects)->filter(fn($obj) => $obj['position_x'] === $x && $obj['position_y'] === $y) as $object)
                                                 <span class="relative text-xl">
                                                     @if ($object['type'] === 'star') ⭐ @endif
+                                                    @if ($object['type'] === 'skills') ⚔ @endif
                                                 </span>
-                                            @endif
-
+                                            @endforeach
                                         </div>
                                     @endforeach
                                 @endforeach
@@ -173,7 +170,16 @@
 
 
         <div class="w-auto m-5 p-5 bg-gray-400">
-            <livewire:inventory-equipment/>
+{{--            <livewire:inventory-equipment/>--}}
+        </div>
+
+        <div class="w-auto m-5 p-5 bg-gray-400">
+            <h2>Skills:</h2>
+           <livewire:character.character-skills/>
+
+            <livewire:learn-school :character="$character" />
+
+
         </div>
 
     </div>
