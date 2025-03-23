@@ -183,7 +183,7 @@
 
         </div>
 
-        <div class="w-100 m-5 p-5 bg-gray-400">
+        <div class="w-auto m-5 p-5 bg-gray-400">
 {{--            <h2>Skills:</h2>--}}
 {{--           <livewire:character.character-skills/>--}}
 

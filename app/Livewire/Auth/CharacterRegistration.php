@@ -74,19 +74,22 @@ class CharacterRegistration extends Component
             'body' => $attributes['body'],
             'base_strength' => $attributes['strength'],
             'strength' => $attributes['strength'],
-            'base_agility' => $attributes['agility'],
-            'agility' => $attributes['agility'],
+            'base_dexterity' => $attributes['dexterity'],
+            'dexterity' => $attributes['dexterity'],
             'intelligence' => $attributes['intelligence'],
             'base_intelligence' => $attributes['intelligence'],
             'base_damage' => $attributes['damage'],
             'damage' => $attributes['damage'],
+            'base_magic_damage' => $attributes['magic_damage'],
+            'magic_damage' => $attributes['magic_damage'],
+            'base_armor' => $attributes['armor'],
             'armor' => $attributes['armor'],
             'health' => $attributes['max_health'],
             'max_health' => $attributes['max_health'],
             'base_health' => $attributes['base_health'],
-            'mana' => $attributes['mana'],
+            'mana' => $attributes['max_mana'],
             'max_mana' => $attributes['max_mana'],
-            'base_max_mana' => $attributes['max_mana'],
+            'base_mana' => $attributes['base_mana'],
         ]);
 
         // Оновлюємо атрибути персонажа після створення (наприклад, max_health)
@@ -102,26 +105,24 @@ class CharacterRegistration extends Component
     private function getClassAttributes($class)
     {
         return match ($class) {
-            'Tank' => $this->calculateAttributes(10, 4, 3, 3, 7),
-            'Warrior' => $this->calculateAttributes(3, 10, 4, 3, 3),
-            'Assassin' => $this->calculateAttributes(3, 3, 10, 4, 5),
-            'Mage' => $this->calculateAttributes(4, 3, 3, 10, 3),
+            'Tank' => $this->calculateAttributes(16, 8, 8, 8),
+            'Warrior' => $this->calculateAttributes(8, 16, 8, 8),
+            'Assassin' => $this->calculateAttributes(8, 8, 16, 8),
+            'Mage' => $this->calculateAttributes(8, 8, 8, 16),
             default => [],
         };
     }
 
-    private function calculateAttributes($body, $strength, $agility, $intelligence, $armor)
+    private function calculateAttributes($body, $strength, $dexterity, $intelligence)
     {
         // Приклад обчислення здоров'я та максимального здоров'я
-        $health = $body * 10; // Кількість здоров'я залежить від тіла, 1 одиниця тіла = 10 здоров'я
-        $base_health = $body * 10;
-        $max_health = $health; // В даному випадку max_health = health
+        $health = $body * 8;
+        $mana = $intelligence * 4;
 
-        // Обчислення мані
-        $max_mana = $intelligence * 10;
-        $mana = $max_mana; // Ви можете змінити залежно від класу, якщо потрібно
+        $damage = $strength * 1;
+        $magic_damage = $intelligence * 1;
 
-        $damage = $strength * 2;
+        $armor = $dexterity * 3;
 
         // Додаємо інші атрибути, якщо потрібно:
         return [
@@ -129,19 +130,22 @@ class CharacterRegistration extends Component
             'body' => $body,
             'base_strength' => $strength,
             'strength' => $strength,
-            'base_agility' => $agility,
-            'agility' => $agility,
+            'base_dexterity' => $dexterity,
+            'dexterity' => $dexterity,
             'intelligence' => $intelligence,
             'base_intelligence' => $intelligence,
             'base_damage' => $damage,
             'damage' => $damage,
+            'base_magic_damage' => $magic_damage,
+            'magic_damage' => $magic_damage,
+            'base_armor' => $armor,
             'armor' => $armor,
             'health' => $health,
-            'max_health' => $max_health,
-            'base_health' => $base_health,
+            'max_health' => $health,
+            'base_health' => $health,
             'mana' => $mana,
-            'max_mana' => $max_mana,
-            'base_max_mana' => $max_mana,
+            'max_mana' => $mana,
+            'base_mana' => $mana,
         ];
     }
 

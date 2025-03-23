@@ -7,7 +7,7 @@ use Livewire\Component;
 
 class CharacterAttributes extends Component
 {
-    public $character, $body, $strength, $agility, $intelligence, $damage;
+    public $character, $body, $strength, $dexterity, $intelligence, $damage, $magic_damage, $armor;
     public $skill_points;
 
     protected $listeners = [
@@ -20,14 +20,17 @@ class CharacterAttributes extends Component
         $this->character = $character;
         $this->body = $character->body;
         $this->strength = $character->strength;
-        $this->agility = $character->agility;
+        $this->dexterity = $character->dexterity;
         $this->intelligence = $character->intelligence;
 
         // Оновлюємо максимальне здоров'я і поточне здоров'я
         $this->updateCharacter();
         $this->updateSchool(
             $this->character->max_health,
+            $this->character->max_mana,
             $this->character->damage,
+            $this->character->magic_damage,
+            $this->character->armor,
         );
     }
 
@@ -37,11 +40,14 @@ class CharacterAttributes extends Component
         $this->skill_points = $this->character->skill_points;
     }
 
-    public function updateSchool($totalHealth, $totalDamage)
+    public function updateSchool($totalHealth, $totalDamage, $totalMagicDamage, $totalArmor, $totalMana)
     {
         // Оновлюємо атрибути персонажа
         $this->character->max_health = $totalHealth;
+        $this->character->max_mana = $totalMana;
         $this->character->damage = $totalDamage;
+        $this->character->magic_damage = $totalMagicDamage;
+        $this->character->armor = $totalArmor;
     }
 
 

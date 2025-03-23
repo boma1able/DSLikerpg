@@ -121,7 +121,7 @@ class World extends Component
             'position_y' => $this->characterY,
             'body' => $character->body,
             'strength' => $character->strength,
-            'agility' => $character->agility,
+            'dexterity' => $character->dexterity,
             'intelligence' => $character->intelligence,
         ];
 

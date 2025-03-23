@@ -11,13 +11,16 @@ class Character extends Model
     protected $fillable = [
         'user_id', 'race', 'avatar', 'class', 'level',
         'health', 'max_health', 'base_health', 'school_health_bonus', 'school_body_bonus',
-        'body', 'base_body',
-        'base_strength', 'strength', 'damage', 'base_damage', 'school_damage_bonus', 'school_strength_bonus',
-        'mana', 'max_mana', 'base_max_mana',
-        'agility', 'base_agility',
-        'intelligence', 'base_intelligence',
+        'mana', 'base_mana', 'max_mana', 'school_mana_bonus',
+        'body', 'base_body', 'school_body_bonus',
+        'strength', 'base_strength', 'school_strength_bonus',
+        'dexterity', 'base_dexterity', 'school_dexterity_bonus',
+        'intelligence', 'base_intelligence', 'school_intelligence_bonus',
+        'damage', 'base_damage', 'school_damage_bonus',
+        'magic_damage', 'base_magic_damage', 'school_magic_damage_bonus',
+        'base_armor', 'armor', 'school_armor_bonus',
         'experience',
-        'armor', 'is_online', 'gold', 'skill_points',
+        'is_online', 'gold', 'skill_points',
     ];
 
     public function user()
