@@ -161,7 +161,15 @@
                         <button wire:click="openStats" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700 cursor-pointer">
                             Атрибути
                         </button>
+                        <button wire:click="openSchool"
+                                class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700 cursor-pointer"
+                                @if($this->characterPositionX !== 4 || $this->characterPositionY !== 3)style="opacity: .5"@endif
+                                @disabled($this->characterPositionX !== 4 || $this->characterPositionY !== 3)
+                            >
+                            Школа
+                        </button>
                     </div>
+
                 </div>
             </div>
 
@@ -169,15 +177,17 @@
 
 
 
-        <div class="w-auto m-5 p-5 bg-gray-400">
+        <div class="w-170 m-5 p-5 bg-gray-400">
 {{--            <livewire:inventory-equipment/>--}}
+            <livewire:character.character-attributes :character="$character" wire:dispatch="closeStats"/>
+
         </div>
 
-        <div class="w-auto m-5 p-5 bg-gray-400">
-            <h2>Skills:</h2>
-           <livewire:character.character-skills/>
+        <div class="w-100 m-5 p-5 bg-gray-400">
+{{--            <h2>Skills:</h2>--}}
+{{--           <livewire:character.character-skills/>--}}
 
-            <livewire:learn-school :character="$character" />
+            <livewire:learn-school :character="$character" wire:dispatch="closeSchool"/>
 
 
         </div>
@@ -213,6 +223,12 @@
                     <div class="bg-white p-6 rounded-lg shadow-lg">
                         <livewire:character.character-attributes :character="$character" wire:dispatch="closeStats"/>
                     </div>
+                </div>
+            @endif
+
+            @if ($showSchool)
+                <div class="fixed inset-0 flex items-center justify-center bg-black/50 z-1">
+                    <livewire:learn-school :character="$character" wire:dispatch="closeSchool"/>
                 </div>
             @endif
         </div>

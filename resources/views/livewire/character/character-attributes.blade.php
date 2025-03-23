@@ -1,44 +1,106 @@
-<div class="w-140 relative">
+<div class="relative">
     <h2 class="text-xl text-gray-500 font-bold mb-4">Атрибути персонажа</h2>
 
-    <div class="flex mb-4">
-        <label for="body" class="block">Тіло:</label>
-        <p class="mx-2text-center">{{ $body }}</p>
+    <div class="overflow-x-auto">
+        <table class="min-w-full text-xs bg-white border border-gray-300">
+            <thead>
+            <tr class="bg-gray-200">
+                <th class="px-2 py-2 border border-gray-300"></th>
+                <th class="px-2 py-2 border border-gray-300">Базові</th>
+                <th class="px-2 py-2 border border-gray-300">Гільдії</th>
+                <th class="px-2 py-2 border border-gray-300">Спорядження</th>
+                <th class="px-2 py-2 border border-gray-300">Бафи</th>
+                <th class="px-2 py-2 border border-gray-300">Разом</th>
+            </tr>
+            </thead>
+            <tbody>
+                <!-- Рядки таблиці -->
+                <tr>
+                    <td class="px-2 py-2 border border-gray-300">Тіло</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['base_body'] }}</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['school_body_bonus'] }}</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['body'] }}</td>
+                </tr>
+                <tr>
+                    <td class="px-2 py-2 border border-gray-300">Сила</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['base_strength'] }}</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['school_strength_bonus'] }}</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['strength'] }}</td>
+                </tr>
+                <tr>
+                    <td class="px-2 py-2 border border-gray-300">Ловкість</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['base_agility'] }}</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['agility'] }}</td>
+                </tr>
+                <tr>
+                    <td class="px-2 py-2 border border-gray-300">Інтелект</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['base_intelligence'] }}</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['intelligence'] }}</td>
+                </tr>
+                <tr>
+                    <td class="px-2 py-2 border border-gray-300">Урон</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['base_damage'] }}</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['school_damage_bonus'] }}</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['damage'] }}</td>
+                </tr>
+                <tr>
+                    <td class="px-2 py-2 border border-gray-300">Захист</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                </tr>
+                <tr>
+                    <td class="px-2 py-2 border border-gray-300">Шанс удару</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                </tr>
+                <tr>
+                    <td class="px-2 py-2 border border-gray-300">Броня</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['armor'] }}</td>
+                </tr>
+                <tr>
+                    <td class="px-2 py-2 border border-gray-300">Здоровʼя</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['base_health'] }}</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['school_health_bonus'] }}</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['max_health'] }}</td>
+                </tr>
+                <tr>
+                    <td class="px-2 py-2 border border-gray-300">Мана</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['base_max_mana'] }}</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['max_mana'] }}</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 
-    <div class="flex mb-4">
-        <label for="strength" class="block">Сила:</label>
-        <p class="mx-2 text-center">{{ $strength }}</p>
-    </div>
-
-    <div class="flex mb-4">
-        <label for="agility" class="block">Ловкість:</label>
-        <p class="mx-2 text-center">{{ $agility }}</p>
-    </div>
-
-    <div class="flex mb-4">
-        <label for="intelligence" class="block">Розум:</label>
-        <p class="mx-2 text-center">{{ $intelligence }}</p>
-    </div>
-
-{{--    <div class="mt-6">--}}
-{{--        <h3 class="font-bold">Бонуси:</h3>--}}
-{{--        <ul>--}}
-{{--            <li>Здоров'я: {{ $this->calculateHealthFromBody() }} HP</li>--}}
-{{--            <li>Мана: {{ $this->calculateManaFromIntelligence() }} мана</li>--}}
-{{--            <li>Шкода: {{ $this->calculateDamageFromStrength() }} шкоди</li>--}}
-{{--            <li>Броня: {{ $this->calculateArmorFromAgility() }} броні</li>--}}
-{{--        </ul>--}}
-{{--    </div>--}}
-    <br>
-    <div>
-        <ul>
-            <li>Здоров'я: {{ $this->character['max_health'] }} HP</li>
-            <li>Мана: {{ $this->character['max_mana'] }} мана</li>
-            <li>Шкода: {{ $this->character['damage'] }} шкоди</li>
-            <li>Броня: {{ $this->character['armor'] }} броні</li>
-            <li>Скілпоінти: {{ $character->skill_points }}</li>
-        </ul>
+    <div class="bg-gray-300 mt-2 p-1 text-xs">
+        Скілпоінти: {{ $character->skill_points }}
     </div>
 
 

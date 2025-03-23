@@ -47,10 +47,11 @@ class World extends Component
     public bool $welcomeMessageShown = false;
     public array $objects = [];
     public $showStats = false;
+    public $showSchool = false;
 
     protected $listeners = [
         'closeStats',
-//        'updateCharacterInMainComponent' => 'updateCharacterInDatabase',
+        'closeSchool',
         'characterMoved' => 'updateCharacterPositionForMonster',
         'updateMap' => 'handleUpdateMap',
         'resting' => 'startResting',
@@ -143,7 +144,7 @@ class World extends Component
         ];
 
         $this->objects[] = [
-            'name' => 'Скіли',
+            'name' => 'Школа',
             'position_x' => 4,
             'position_y' => 3,
             'type' => 'skills',
@@ -316,7 +317,6 @@ class World extends Component
             ]], true);
         }
     }
-
 
     public function moveMonsters()
     {
@@ -512,13 +512,15 @@ class World extends Component
         }
 
         $this->updateCharacterInDatabase();
+
+        $this->dispatch('characterUpdated');
     }
 
     public function levelUp()
     {
         $this->character['level']++;
         $this->character['skill_points']++;
-        $this->updateCharacterInDatabase(); // Оновлюємо дані в базі
+        $this->updateCharacterInDatabase();
 
     }
 
@@ -608,7 +610,6 @@ class World extends Component
         ];
     }
 
-
     public function calculateHitChance($attacker, $defender)
     {
         // Різниця в рівнях
@@ -691,6 +692,16 @@ class World extends Component
     public function closeStats()
     {
         $this->showStats = false;
+    }
+
+    public function openSchool()
+    {
+        $this->showSchool = true;
+    }
+
+    public function closeSchool()
+    {
+        $this->showSchool = false;
     }
 
     public function render()

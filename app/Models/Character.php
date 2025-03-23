@@ -9,8 +9,15 @@ class Character extends Model
     protected $table = 'characters';
 
     protected $fillable = [
-        'user_id', 'race', 'avatar', 'class', 'level', 'health', 'max_health', 'mana', 'max_mana', 'experience',
-        'damage', 'armor', 'is_online', 'gold', 'body', 'strength', 'agility', 'intelligence', 'skill_points',
+        'user_id', 'race', 'avatar', 'class', 'level',
+        'health', 'max_health', 'base_health', 'school_health_bonus', 'school_body_bonus',
+        'body', 'base_body',
+        'base_strength', 'strength', 'damage', 'base_damage', 'school_damage_bonus', 'school_strength_bonus',
+        'mana', 'max_mana', 'base_max_mana',
+        'agility', 'base_agility',
+        'intelligence', 'base_intelligence',
+        'experience',
+        'armor', 'is_online', 'gold', 'skill_points',
     ];
 
     public function user()
@@ -30,7 +37,7 @@ class Character extends Model
 
     public function schools()
     {
-        return $this->hasMany(School::class, 'character_id'); // Вказуємо кастомну назву таблиці
+        return $this->hasMany(School::class, 'character_id');
     }
 
 }
