@@ -56,12 +56,12 @@
                     <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['damage'] }}</td>
                 </tr>
                 <tr>
-                    <td class="px-2 py-2 border border-gray-300 whitespace-nowrap">Магічний урон</td>
-                    <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['base_magic_damage'] }}</td>
-                    <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['school_magic_damage_bonus'] }}</td>
+                    <td class="px-2 py-2 border border-gray-300 whitespace-nowrap">Шанс удару</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['base_hit_chance'] }}</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['school_hit_chance_bonus'] }}</td>
                     <td class="px-2 py-2 border border-gray-300 text-center">-</td>
                     <td class="px-2 py-2 border border-gray-300 text-center">-</td>
-                    <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['magic_damage'] }}</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['hit_chance'] }}</td>
                 </tr>
                 <tr>
                     <td class="px-2 py-2 border border-gray-300 whitespace-nowrap">Захист</td>
@@ -72,12 +72,20 @@
                     <td class="px-2 py-2 border border-gray-300 text-center">-</td>
                 </tr>
                 <tr>
-                    <td class="px-2 py-2 border border-gray-300 whitespace-nowrap">Шанс удару</td>
+                    <td class="px-2 py-2 border border-gray-300 whitespace-nowrap">Магічний урон</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['base_magic_damage'] }}</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['school_magic_damage_bonus'] }}</td>
                     <td class="px-2 py-2 border border-gray-300 text-center">-</td>
                     <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['magic_damage'] }}</td>
+                </tr>
+                <tr>
+                    <td class="px-2 py-2 border border-gray-300 whitespace-nowrap">Шанс магічного удару</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['base_magic_hit_chance'] }}</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['school_magic_hit_chance_bonus'] }}</td>
                     <td class="px-2 py-2 border border-gray-300 text-center">-</td>
                     <td class="px-2 py-2 border border-gray-300 text-center">-</td>
-                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['magic_hit_chance'] }}</td>
                 </tr>
                 <tr>
                     <td class="px-2 py-2 border border-gray-300 whitespace-nowrap">Броня</td>

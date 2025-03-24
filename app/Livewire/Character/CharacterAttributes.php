@@ -25,13 +25,13 @@ class CharacterAttributes extends Component
 
         // Оновлюємо максимальне здоров'я і поточне здоров'я
         $this->updateCharacter();
-        $this->updateSchool(
-            $this->character->max_health,
-            $this->character->max_mana,
-            $this->character->damage,
-            $this->character->magic_damage,
-            $this->character->armor,
-        );
+//        $this->updateSchool(
+//            $this->character->max_health,
+//            $this->character->max_mana,
+//            $this->character->damage,
+//            $this->character->magic_damage,
+//            $this->character->armor,
+//        );
     }
 
     public function updateCharacter()
@@ -40,15 +40,15 @@ class CharacterAttributes extends Component
         $this->skill_points = $this->character->skill_points;
     }
 
-    public function updateSchool($totalHealth, $totalDamage, $totalMagicDamage, $totalArmor, $totalMana)
-    {
-        // Оновлюємо атрибути персонажа
-        $this->character->max_health = $totalHealth;
-        $this->character->max_mana = $totalMana;
-        $this->character->damage = $totalDamage;
-        $this->character->magic_damage = $totalMagicDamage;
-        $this->character->armor = $totalArmor;
-    }
+//    public function updateSchool($totalHealth, $totalDamage, $totalMagicDamage, $totalArmor, $totalMana)
+//    {
+//        // Оновлюємо атрибути персонажа
+//        $this->character->max_health = $totalHealth;
+//        $this->character->max_mana = $totalMana;
+//        $this->character->damage = $totalDamage;
+//        $this->character->magic_damage = $totalMagicDamage;
+//        $this->character->armor = $totalArmor;
+//    }
 
 
     public function closeModal()

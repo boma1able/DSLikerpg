@@ -23,7 +23,9 @@ return new class extends Migration
             $table->integer('school_health_bonus')->default(0);
             $table->integer('school_body_bonus')->default(0);
             $table->integer('school_damage_bonus')->default(0);
+            $table->integer('school_hit_chance_bonus')->default(0);
             $table->integer('school_magic_damage_bonus')->default(0);
+            $table->integer('school_magic_hit_chance_bonus')->default(0);
             $table->integer('school_strength_bonus')->default(0);
             $table->integer('school_dexterity_bonus')->default(0);
             $table->integer('school_intelligence_bonus')->default(0);
@@ -37,8 +39,12 @@ return new class extends Migration
             $table->integer('skill_points')->default(0);
             $table->integer('base_damage')->nullable();
             $table->integer('damage')->nullable();
+            $table->integer('base_hit_chance')->nullable();
+            $table->integer('hit_chance')->nullable();
             $table->integer('base_magic_damage')->nullable();
             $table->integer('magic_damage')->nullable();
+            $table->integer('base_magic_hit_chance')->nullable();
+            $table->integer('magic_hit_chance')->nullable();
             $table->integer('base_armor')->nullable();
             $table->integer('armor')->nullable();
             $table->integer('base_body')->nullable();

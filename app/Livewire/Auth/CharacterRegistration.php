@@ -80,8 +80,12 @@ class CharacterRegistration extends Component
             'base_intelligence' => $attributes['intelligence'],
             'base_damage' => $attributes['damage'],
             'damage' => $attributes['damage'],
+            'base_hit_chance' => $attributes['hit_chance'],
+            'hit_chance' => $attributes['hit_chance'],
             'base_magic_damage' => $attributes['magic_damage'],
             'magic_damage' => $attributes['magic_damage'],
+            'base_magic_hit_chance' => $attributes['magic_hit_chance'],
+            'magic_hit_chance' => $attributes['magic_hit_chance'],
             'base_armor' => $attributes['armor'],
             'armor' => $attributes['armor'],
             'health' => $attributes['max_health'],
@@ -120,7 +124,10 @@ class CharacterRegistration extends Component
         $mana = $intelligence * 4;
 
         $damage = $strength * 1;
+        $hit_chance = $dexterity * 2;
+
         $magic_damage = $intelligence * 1;
+        $magic_hit_chance = $intelligence * 2;
 
         $armor = $dexterity * 3;
 
@@ -136,8 +143,12 @@ class CharacterRegistration extends Component
             'base_intelligence' => $intelligence,
             'base_damage' => $damage,
             'damage' => $damage,
+            'base_hit_chance' => $hit_chance,
+            'hit_chance' => $hit_chance,
             'base_magic_damage' => $magic_damage,
             'magic_damage' => $magic_damage,
+            'base_magic_hit_chance' => $magic_hit_chance,
+            'magic_hit_chance' => $magic_hit_chance,
             'base_armor' => $armor,
             'armor' => $armor,
             'health' => $health,

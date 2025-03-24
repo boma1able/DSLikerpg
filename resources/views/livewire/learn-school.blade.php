@@ -23,58 +23,42 @@
         <p>Рівень школи: {{ $currentLevel }}/15</p>
         <p>Скілпоінти: {{ $character->skill_points }}</p>
 
+        @php
+            $attributeLabels = [
+                'body' => 'Тіло',
+                'max_health' => 'здоровʼя',
+                'strength' => 'Сила',
+                'damage' => 'Урон',
+                'dexterity' => 'Спритність',
+                'armor' => 'Броня',
+                'intelligence' => 'Інтелект',
+                'magic_damage' => 'Магічний урон',
+                'max_mana' => 'Мана',
+                'hit_chance' => 'Шанс удару',
+                'magic_hit_chance' => 'Шанс магічного удару',
+            ];
+        @endphp
+
         <div class="flex flex-wrap gap-1 mt-2 font-semibold">
             @foreach ($bonuses as $level => $bonus)
-                @php
-                    $bodyBonus = $bonus['body'] ?? 0;
-                    $healthBonus = $bonus['max_health'] ?? 0;
-                    $strengthBonus = $bonus['strength'] ?? 0;
-                    $damageBonus = $bonus['damage'] ?? 0;
-                    $dexterityBonus = $bonus['dexterity'] ?? 0;
-                    $armorBonus = $bonus['armor'] ?? 0;
-                    $intelligenceBonus = $bonus['intelligence'] ?? 0;
-                    $magicDamageBonus = $bonus['magic_damage'] ?? 0;
-                @endphp
-
                 @if ($level <= $currentLevel)
-                    <button class="w-60 text-start text-xs text-[#0ac816]">
-                        <span class="inline-block w-3 text-center mr-3">{{ $level }}</span>
-                        @if ($bodyBonus > 0)<span class="mr-2">+ {{ $bodyBonus }} Тіло</span>@endif
-                        @if ($strengthBonus > 0)<span class="mr-2">+ {{ $strengthBonus }} Сила</span>@endif
-                        @if ($damageBonus > 0)<span class="mr-2">+ {{ $damageBonus }} Урон</span>@endif
-                        @if ($healthBonus > 0)<span class="mr-2">+ {{ $healthBonus }} здоровʼя</span>@endif
-                        @if ($dexterityBonus > 0)<span class="mr-2">+ {{ $dexterityBonus }} Спритність</span>@endif
-                        @if ($intelligenceBonus > 0)<span class="mr-2">+ {{ $intelligenceBonus }} Інтелект</span>@endif
-                        @if ($armorBonus > 0)<span class="mr-2">+ {{ $armorBonus }} Броні</span>@endif
-                        @if ($magicDamageBonus > 0)<span class="mr-2">+ {{ $magicDamageBonus }} Магічний урон</span>@endif
-                    </button>
+                    <button class="w-80 text-start text-xs text-gray-500">
                 @elseif ($level === $nextAvailableLevel && $character->skill_points > 0)
-                    <button wire:click="learnLevel({{ $level }})" class="w-60 text-start text-xs text-blue-700 cursor-pointer">
-                        <span class="inline-block w-3 text-center mr-3">{{ $level }}</span>
-                        @if ($bodyBonus > 0)<span class="mr-2">+ {{ $bodyBonus }} Тіло</span>@endif
-                        @if ($strengthBonus > 0)<span class="mr-2">+ {{ $strengthBonus }} Сила</span>@endif
-                        @if ($damageBonus > 0)<span class="mr-2">+ {{ $damageBonus }} Урон</span>@endif
-                        @if ($healthBonus > 0)<span class="mr-2">+ {{ $healthBonus }} здоровʼя</span>@endif
-                        @if ($dexterityBonus > 0)<span class="mr-2">+ {{ $dexterityBonus }} Спритність</span>@endif
-                        @if ($intelligenceBonus > 0)<span class="mr-2">+ {{ $intelligenceBonus }} Інтелект</span>@endif
-                        @if ($armorBonus > 0)<span class="mr-2">+ {{ $armorBonus }} Броні</span>@endif
-                        @if ($magicDamageBonus > 0)<span class="mr-2">+ {{ $magicDamageBonus }} Магічний урон</span>@endif
-                    </button>
+                    <button wire:click="learnLevel({{ $level }})" class="w-80 text-start text-xs text-blue-700 cursor-pointer">
                 @else
-                    <button class="w-60 text-start text-xs text-[#c82d0a] cursor-not-allowed">
-                        <span class="inline-block w-3 text-center mr-3">{{ $level }}</span>
-                        @if ($bodyBonus > 0)<span class="mr-2">+ {{ $bodyBonus }} Тіло</span>@endif
-                        @if ($strengthBonus > 0)<span class="mr-2">+ {{ $strengthBonus }} Сила</span>@endif
-                        @if ($damageBonus > 0)<span class="mr-2">+ {{ $damageBonus }} Урон</span>@endif
-                        @if ($healthBonus > 0)<span class="mr-2">+ {{ $healthBonus }} здоровʼя</span>@endif
-                        @if ($dexterityBonus > 0)<span class="mr-2">+ {{ $dexterityBonus }} Спритність</span>@endif
-                        @if ($intelligenceBonus > 0)<span class="mr-2">+ {{ $intelligenceBonus }} Інтелект</span>@endif
-                        @if ($armorBonus > 0)<span class="mr-2">+ {{ $armorBonus }} Броні</span>@endif
-                        @if ($magicDamageBonus > 0)<span class="mr-2">+ {{ $magicDamageBonus }} Магічний урон</span>@endif
-                    </button>
+                    <button class="w-80 text-start text-xs text-[#a42205] cursor-not-allowed">
                 @endif
+                    <span class="inline-block w-3 text-center mr-3">{{ $level }}</span>
+                @foreach ($bonus as $attribute => $value)
+                    @if ($value > 0)
+                        <span class="mr-2">+ {{ $value }} {{ $attributeLabels[$attribute] ?? $attribute }}</span>
+                    @endif
+                @endforeach
+                </button>
             @endforeach
         </div>
+
+
     </div>
 
 </div>
