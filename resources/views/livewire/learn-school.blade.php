@@ -11,7 +11,7 @@
 
     <!-- Бонуси для обраної школи -->
     <div class="w-full p-4 bg-gray-100 rounded-lg">
-        <h2 class="text-lg font-bold">Школа {{ ucfirst($selectedSchool) }}</h2>
+        <h2 class="text-lg font-bold">Школа {{ ucfirst($this->selectedSchoolLabel) }}</h2>
 
         @php
             $currentSchool = $schools->where('school_name', $selectedSchool)->first();

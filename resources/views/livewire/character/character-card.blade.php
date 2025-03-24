@@ -26,10 +26,12 @@
         </div>
 
         <!-- Tooltip text following the mouse -->
-        <div class="absolute w-auto left-0 top-0 border border-gray-400 bg-white p-2 text-xs z-[-1] opacity-0 group-hover:opacity-100 group-hover:z-1"
-             :style="'left: ' + (x + 14) + 'px; top: ' + (y + 14) + 'px'"
-        >
-            <span style="white-space: nowrap">{{ auth()->user()->name }} [{{ $character->level }}]</span>
+        <div class="absolute w-full h-full top-1 left-0 z-10">
+            <div class="absolute w-auto left-0 top-0 border border-gray-400 bg-white p-2 text-xs z-[-1] opacity-0 group-hover:opacity-100 group-hover:z-1"
+                 :style="'left: ' + (x + 14) + 'px; top: ' + (y + 14) + 'px'"
+            >
+                <span style="white-space: nowrap">{{ auth()->user()->name }} [{{ $character->level }}]</span>
+            </div>
         </div>
         @if($character->skill_points)
             <div class="absolute top-1 right-1">

@@ -50,6 +50,7 @@ class World extends Component
     public $showSchool = false;
 
     protected $listeners = [
+        'schoolUpdated' => 'updateSchool',
         'closeStats',
         'closeSchool',
         'characterMoved' => 'updateCharacterPositionForMonster',
@@ -67,7 +68,7 @@ class World extends Component
         $this->characterPositionY = $characterY;
     }
 
-    public function mount()
+    public function mount(Character $character)
     {
         if (Auth::check()) {
             $this->loggedIn = true;
@@ -116,6 +117,9 @@ class World extends Component
             'class' => $character->class,
             'gold' => $character->gold,
             'damage' => $character->damage,
+            'hit_chance' => $character->hit_chance,
+            'magic_damage' => $character->magic_damage,
+            'magic_hit_chance' => $character->hit_chance,
             'armor' => $character->armor,
             'position_x' => $this->characterX,
             'position_y' => $this->characterY,
@@ -150,10 +154,31 @@ class World extends Component
             'type' => 'skills',
         ];
 
+        $this->updateSchool(
+            $this->character['max_health'],
+            $this->character['max_mana'],
+            $this->character['damage'],
+            $this->character['magic_damage'],
+            $this->character['armor'],
+            $this->character['hit_chance'],
+            $this->character['magic_hit_chance']
+        );
 
         $this->dispatch('updateCharacterPosition', $this->characterX, $this->characterY);
 
         $this->dispatch('refresh-inventory');
+    }
+
+    public function updateSchool($totalHealth, $totalDamage, $totalMagicDamage, $totalArmor, $totalMana, $totalHitChance, $totalMagicHitChance)
+    {
+        // Оновлюємо атрибути персонажа
+        $this->character['max_health'] = $totalHealth;
+        $this->character['max_mana'] = $totalMana;
+        $this->character['damage'] = $totalDamage;
+        $this->character['magic_damage'] = $totalMagicDamage;
+        $this->character['armor'] = $totalArmor;
+        $this->character['hit_chance'] = $totalHitChance;
+        $this->character['magic_hit_chance'] = $totalMagicHitChance;
     }
 
     public function handleUpdateMap($map, $offsetX, $offsetY)
@@ -262,6 +287,7 @@ class World extends Component
                 'max_health' => $monster['health'],
                 'health' => $monster['health'],
                 'damage' => $monster['damage'],
+                'armor' => $monster['armor'],
                 'hit_chance' => $monster['hit_chance'],
                 'position_x' => $randomPosition['x'],
                 'position_y' => $randomPosition['y'],
@@ -309,6 +335,7 @@ class World extends Component
                 'avatar' => $monster->avatar,
                 'health' => $monster->health,
                 'damage' => $monster->damage,
+                'armor' => $monster->armor,
                 'hit_chance' => $monster->hit_chance,
                 'position_x' => $randomPosition['x'],
                 'position_y' => $randomPosition['y'],
@@ -612,41 +639,26 @@ class World extends Component
 
     public function calculateHitChance($attacker, $defender)
     {
-        // Різниця в рівнях
-        $levelDifference = $attacker['level'] - $defender['level'];
-
-        // Початковий шанс попадання
         $hitChance = $attacker['hit_chance'];
+        $armor = $defender['armor'];
 
-        // Збільшення або зменшення шансів залежно від рівня
-        if ($levelDifference > 0) {
-            $hitChance += 0.05 * $levelDifference; // Збільшуємо на 5% за кожен рівень
-        } elseif ($levelDifference < 0) {
-            $hitChance -= 0.05 * abs($levelDifference); // Зменшуємо на 5% за кожен рівень
-        }
+        // Формула розрахунку шансу попадання
+        $finalHitChance = ($hitChance / ($hitChance + $armor)) * 0.75 + 0.25;
 
-        // Обмеження шансів від 0 до 1
-        return max(0, min(1, $hitChance));
+        // Обмеження від 0 до 1
+        return max(0, min(1, $finalHitChance));
     }
 
     public function calculateCharacterHitChance($character, $monster)
     {
-        // Різниця в рівнях
-        $levelDifference = $character['level'] - $monster['level'];
-
-        // Початковий шанс попадання (наприклад, 75% для всіх персонажів)
-        $hitChance = 0.75;
-
-        // Збільшення або зменшення шансів залежно від рівня
-        if ($levelDifference > 0) {
-            $hitChance += 0.05 * $levelDifference; // Збільшуємо на 5% за кожен рівень
-        } elseif ($levelDifference < 0) {
-            $hitChance -= 0.05 * abs($levelDifference); // Зменшуємо на 5% за кожен рівень
-        }
-
-        // Обмеження шансів від 0 до 1
-        return max(0, min(1, $hitChance));
+        return $this->calculateHitChance($character, $monster);
     }
+
+    public function calculateMonsterHitChance($monster, $character)
+    {
+        return $this->calculateHitChance($monster, $character);
+    }
+
 
     public function revive()
     {

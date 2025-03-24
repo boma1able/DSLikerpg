@@ -127,7 +127,6 @@
                             <livewire:gold-manager :characterId="$character['id']"/>
 
                         </li>
-                        <li><span style="display:inline-block;width: 100px;">Damage:</span>{{ $character['damage'] }}</li>
                     </ul>
                 </div>
 

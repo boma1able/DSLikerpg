@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('character_schools', function (Blueprint $table) {
             $table->id();
             $table->foreignId('character_id')->constrained()->onDelete('cascade');
-            $table->string('school_name'); // Назва школи (наприклад, 'body')
-            $table->integer('level')->default(0); // Поточний рівень школи
+            $table->string('school_name');
+            $table->integer('level')->default(0);
+            $table->string('label')->nullable();
             $table->timestamps();
         });
     }

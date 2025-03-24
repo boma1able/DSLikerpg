@@ -14,7 +14,8 @@ class LearnSchool extends Component
     public $skill_points;
     public $selectedSchool = 'body';
     public $school;
-    public $schools = ['body', 'strength'];
+    public $schools = [];
+    public $selectedSchoolLabel;
 
     public $schoolLevels = [
         'body' => [
@@ -96,27 +97,52 @@ class LearnSchool extends Component
         $this->character = Auth::user()->character;
         $this->selectedSchool = $school_name;
 
-        $availableSchools = ['body', 'strength', 'dexterity', 'intelligence'];
+        $availableSchools = [
+            'body' => 'Тіла',
+            'strength' => 'Силм',
+            'dexterity' => 'Спритності',
+            'intelligence' => 'Інтелекту',
+        ];
 
+        // Завантажуємо школи з бази
         $this->schools = School::where('character_id', $this->character->id)->get();
 
-        foreach ($availableSchools as $school) {
+        // Перевіряємо наявність школи, якщо її немає — додаємо з лейблом
+        foreach ($availableSchools as $school => $label) {
             if (!$this->schools->where('school_name', $school)->first()) {
-
                 $newSchool = School::create([
                     'character_id' => $this->character->id,
                     'school_name' => $school,
                     'level' => 0,
+                    'label' => $label,  // Додаємо лейбл
                 ]);
 
-                // Додаємо школу до колекції
+                // Додаємо нову школу до колекції
                 $this->schools->push($newSchool);
             }
         }
 
+        // Встановлюємо вибрану школу
         $this->school = $this->schools->where('school_name', $this->selectedSchool)->first();
 
+        // Встановлюємо лейбл для обраної школи
+        $this->selectedSchoolLabel = $availableSchools[$this->selectedSchool] ?? 'Unknown';
+
+        // Оновлюємо бонуси та інші дані
         $this->updateCharacter();
+    }
+
+    public function updatedSelectedSchool($school)
+    {
+        // Оновлюємо лейбл для нової вибраної школи
+        $availableSchools = [
+            'body' => 'Тіла',
+            'strength' => 'Сили',
+            'dexterity' => 'Спритності',
+            'intelligence' => 'Інтелекту',
+        ];
+
+        $this->selectedSchoolLabel = $availableSchools[$school] ?? 'Unknown';
     }
 
 
@@ -228,7 +254,7 @@ class LearnSchool extends Component
 
             // Оновлюємо дані в компоненті
             $this->dispatch('schoolUpdated',
-                $totalHealth, $totalDamage, $totalMagicDamage, $totalArmor, $totalMana
+                $totalHealth, $totalDamage, $totalMagicDamage, $totalArmor, $totalMana, $totalHitChance, $totalMagicHitChance
             );
         }
     }
