@@ -2,7 +2,9 @@
 
 namespace App\Livewire\Character;
 
+use App\Models\CharacterBuff;
 use Livewire\Component;
+use Livewire\Attributes\On;
 
 class CharacterCard extends Component
 {
@@ -11,6 +13,9 @@ class CharacterCard extends Component
     public $level;
     public $skill_points;
     public $requiredExperience;
+    public $buffsActiveStatus = [];
+    public $buffs = [];
+
 
     public bool $isResting = false;
 
@@ -20,12 +25,18 @@ class CharacterCard extends Component
         'restStarted' => 'handleRestingStatus',
         'stopResting' => 'handleRestingStatus',
         'schoolUpdated' => 'updateSchool',
+        'updateBuffs' => 'setBuffs',
+        'updateBuffsInCard' => 'loadBuffs',
     ];
 
     public function mount()
     {
         $this->updateCharacter();
         $this->updateSchool($this->character->max_health);
+
+        $this->buffsActiveStatus = CharacterBuff::where('is_active', 1)
+            ->pluck('is_active', 'id')
+            ->toArray();
     }
 
     public function updateCharacter()
@@ -41,6 +52,22 @@ class CharacterCard extends Component
     {
         $this->character->max_health = $newMaxHealth;
     }
+
+    public function setBuffs($buffs)
+    {
+        $this->buffs = collect($buffs)->map(fn($buff) => (object) $buff);
+    }
+
+    public function refreshBuffs()
+    {
+        $this->buffs = CharacterBuff::where('character_id', auth()->id())->get();
+    }
+
+    public function loadBuffs()
+    {
+        $this->buffs = CharacterBuff::where('character_id', auth()->id())->get();
+    }
+
 
     private function getRequiredExperienceForLevel($level)
     {
@@ -64,7 +91,9 @@ class CharacterCard extends Component
 
     public function render()
     {
-        return view('livewire.character.character-card');
+        return view('livewire.character.character-card', [
+            'buffs' => $this->buffs,
+        ]);
     }
 }
 

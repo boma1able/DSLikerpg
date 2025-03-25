@@ -86,6 +86,23 @@ class LearnSchool extends Component
             14 => ['intelligence' => 1, 'magic_damage' => 1],
             15 => ['intelligence' => 2, 'magic_hit_chance' => 1],
         ],
+        'warlock' => [
+            1 => ['body_boost' => 1, 'strength_boost' => 1],
+            2 => ['body_boost' => 1, 'strength_boost' => 1],
+            3 => ['body_boost' => 1],
+            4 => ['body_boost' => 1],
+            5 => ['body_boost' => 1],
+            6 => ['body_boost' => 1],
+            7 => ['body_boost' => 1],
+            8 => ['body_boost' => 1],
+            9 => ['body_boost' => 1],
+            10 => ['body_boost' => 1],
+            11 => ['body_boost' => 1],
+            12 => ['body_boost' => 1],
+            13 => ['body_boost' => 1],
+            14 => ['body_boost' => 1],
+            15 => ['body_boost' => 1],
+        ],
     ];
 
     protected $listeners = [
@@ -99,9 +116,10 @@ class LearnSchool extends Component
 
         $availableSchools = [
             'body' => 'Тіла',
-            'strength' => 'Силм',
+            'strength' => 'Сили',
             'dexterity' => 'Спритності',
             'intelligence' => 'Інтелекту',
+            'warlock' => 'Чаклунів',
         ];
 
         // Завантажуємо школи з бази
@@ -140,6 +158,7 @@ class LearnSchool extends Component
             'strength' => 'Сили',
             'dexterity' => 'Спритності',
             'intelligence' => 'Інтелекту',
+            'warlock' => 'Чаклунів',
         ];
 
         $this->selectedSchoolLabel = $availableSchools[$school] ?? 'Unknown';
@@ -259,20 +278,68 @@ class LearnSchool extends Component
         }
     }
 
-
-
     public function applyBonusesFromLevels($level)
     {
-        // Отримуємо рівень школи і відповідні бонуси з масиву schoolLevels
         $schoolName = $this->school->school_name;
-        $levelBonuses = $this->schoolLevels[$schoolName][$level] ?? null;
 
-        if ($levelBonuses) {
-            // Застосовуємо бонуси
-            foreach ($levelBonuses as $attribute => $value) {
-                $this->character->increment($attribute, $value);
+        $AttrBuffLevels = [
+            1 => 128,
+            2 => 32,
+            3 => 64,
+            4 => 32,
+            5 => 32,
+            6 => 32,
+            7 => 32,
+            8 => 32,
+            9 => 32,
+            10 => 32,
+        ];
+
+        if ($schoolName === 'warlock') {
+            $levelBonuses = $this->schoolLevels[$schoolName][$level] ?? null;
+
+            if ($levelBonuses) {
+                foreach ($levelBonuses as $buffName => $buffAmount) {
+                    $existingBuff = $this->character->buffs()->where('buff_name', $buffName)->first();
+
+                    if ($existingBuff) {
+                        $newBuffAmount = $existingBuff->buff_amount + $AttrBuffLevels[$level];
+                        $existingBuff->update([
+                            'buff_amount' => $newBuffAmount,
+                            'level' => $level,
+                        ]);
+                    } else {
+                        $this->character->buffs()->create([
+                            'buff_name' => $buffName,
+                            'buff_amount' => $AttrBuffLevels[$level],
+                            'level' => $level,
+                            'label' => $this->getBuffLabel($buffName),
+                        ]);
+                    }
+                }
+            }
+        } else {
+            $levelBonuses = $this->schoolLevels[$schoolName][$level] ?? null;
+
+            if ($levelBonuses) {
+                foreach ($levelBonuses as $attribute => $value) {
+                    $this->character->increment($attribute, $value);
+                }
             }
         }
+
+        $this->dispatch('buffAdded');
+    }
+
+
+    private function getBuffLabel($buffName)
+    {
+        $labels = [
+            'body_boost' => 'Ведмежа кров',
+            'strength_boost' => 'Сила тигра',
+        ];
+
+        return $labels[$buffName] ?? ucfirst(str_replace('_', ' ', $buffName));
     }
 
 

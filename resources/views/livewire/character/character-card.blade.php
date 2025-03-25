@@ -31,22 +31,51 @@
                  :style="'left: ' + (x + 14) + 'px; top: ' + (y + 14) + 'px'"
             >
                 <span style="white-space: nowrap">{{ auth()->user()->name }} [{{ $character->level }}]</span>
+                <ul wire:poll.2s="loadBuffs" class="text-black mt-3">
+                    @foreach ($buffs as $buff)
+                        @if ($buff->is_active)
+                            <li class="flex justify-between whitespace-nowrap">
+                                <span class="mr-2">[{{ $buff->level }}] {{ $buff->label }}</span>
+                                {{ $buff->name }}
+                                @php
+                                    $remainingSeconds = max(0, now()->diffInSeconds($buff->applied_at));
+                                    $minutes = intdiv($remainingSeconds, 60);
+                                    $seconds = $remainingSeconds % 60;
+                                @endphp
+                                <span class="flex">
+                                    <span class="block w-4 text-center">{{ str_pad($minutes, 2, '0', STR_PAD_LEFT) }}</span>:
+                                    <span class="block w-4 text-center">{{ str_pad($seconds, 2, '0', STR_PAD_LEFT) }}</span>
+                                </span>
+                            </li>
+
+                        @endif
+                    @endforeach
+                </ul>
             </div>
         </div>
         @if($character->skill_points)
             <div class="absolute top-1 right-1">
-                <svg viewBox="0 0 72 72" class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="#ff1a1a" transform="rotate(45)" stroke="#ff1a1a"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g id="color"> <path fill="#4aeb47" d="m58.14 21.78-7.76-8.013-14.29 14.22-14.22-14.22-8.013 8.013 14.36 14.22-14.36 14.22 8.014 8.013 14.22-14.22 14.29 14.22 7.76-8.013-14.22-14.22z"></path> </g> <g id="hair"></g> <g id="skin"></g> <g id="skin-shadow"></g> <g id="line"> <path fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2" d="m58.14 21.78-7.76-8.013-14.29 14.22-14.22-14.22-8.013 8.013 14.35 14.22-14.35 14.22 8.014 8.013 14.22-14.22 14.29 14.22 7.76-8.013-14.22-14.22z"></path> </g> </g></svg>
+                <svg viewBox="0 0 72 72" class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="#ff1a1a" transform="rotate(45)" stroke="#ff1a1a"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g id="color"> <path fill="#4aeb47" d="m58.14 21.78-7.76-8.013-14.29 14.22-14.22-14.22-8.013 8.013 14.36 14.22-14.36 14.22 8.014 8.013 14.22-14.22 14.29 14.22 7.76-8.013-14.22-14.22z"></path> </g> <g id="hair"></g> <g id="skin"></g> <g id="skin-shadow"></g> <g id="line"> <path fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2" d="m58.14 21.78-7.76-8.013-14.29 14.22-14.22-14.22-8.013 8.013 14.35 14.22-14.35 14.22 8.014 8.013 14.22-14.22 14.29 14.22 7.76-8.013-14.22-14.22z"></path> </g> </g></svg>
             </div>
         @endif
         @if ($isResting)
-            <div class="absolute top-[5px] left-[5px]">
-                <svg class="w-4 h-4" viewBox="0 0 48 48" stroke="#00f3ff" stroke-width="4" xmlns="http://www.w3.org/2000/svg">
-                    <g>
-                        <circle cx="229.5851" cy="25.1368" r="5.6345" />
-                        <path style="fill: transparent;" d="M35.22,25.1368c0-8.5012-5.239-11.17-9.885-11.17s-11.3678,2.3724-11.3678,11.17,4.4482,14.8276,15.6184,14.8276c10.577,0,15.9149-8.3035,15.9149-14.8276C45.5,18.9092,44.5774,2.5,24.1812,2.5,6.5529,2.5,2.5,17.9207,2.5,25.1368A30.0767,30.0767,0,0,0,10.0126,43.523" />
-                    </g>
-                </svg>
-            </div>
+            <span>Відпочинок...</span>
         @endif
+
+        @foreach ($buffs as $buff)
+            @if ($buff->is_active)
+                <div class="absolute top-[5px] left-[5px]">
+                    <svg class="w-3 h-3" viewBox="0 0 48 48" stroke="#00f3ff" stroke-width="4" xmlns="http://www.w3.org/2000/svg">
+                        <g>
+                            <circle cx="229.5851" cy="25.1368" r="5.6345" />
+                            <path style="fill: transparent;" d="M35.22,25.1368c0-8.5012-5.239-11.17-9.885-11.17s-11.3678,2.3724-11.3678,11.17,4.4482,14.8276,15.6184,14.8276c10.577,0,15.9149-8.3035,15.9149-14.8276C45.5,18.9092,44.5774,2.5,24.1812,2.5,6.5529,2.5,2.5,17.9207,2.5,25.1368A30.0767,30.0767,0,0,0,10.0126,43.523" />
+                        </g>
+                    </svg>
+                </div>
+                @break
+            @endif
+        @endforeach
+
+
     </div>
 </div>

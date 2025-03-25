@@ -182,6 +182,10 @@
 
         </div>
 
+        <div class="w-auto my-5 mx-1 p-5 bg-gray-400">
+            <livewire:character.character-buffs :character="$character"/>
+        </div>
+
         <div class="w-auto m-5 p-5 bg-gray-400">
 {{--            <h2>Skills:</h2>--}}
 {{--           <livewire:character.character-skills/>--}}

@@ -6,6 +6,7 @@
             <li class="cursor-pointer whitespace-nowrap" wire:click="$set('selectedSchool', 'strength')">Школа Сили</li>
             <li class="cursor-pointer whitespace-nowrap" wire:click="$set('selectedSchool', 'dexterity')">Школа Спритності</li>
             <li class="cursor-pointer whitespace-nowrap" wire:click="$set('selectedSchool', 'intelligence')">Школа Інтелекту</li>
+            <li class="cursor-pointer whitespace-nowrap" wire:click="$set('selectedSchool', 'warlock')">Школа Чаклунів</li>
         </ul>
     </div>
 
@@ -36,6 +37,8 @@
                 'max_mana' => 'Мана',
                 'hit_chance' => 'Шанс удару',
                 'magic_hit_chance' => 'Шанс магічного удару',
+                'body_boost' => 'Ведмежа кров',
+                'strength_boost' => 'Сила тигра',
             ];
         @endphp
 

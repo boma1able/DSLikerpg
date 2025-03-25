@@ -43,4 +43,8 @@ class Character extends Model
         return $this->hasMany(School::class, 'character_id');
     }
 
+    public function buffs()
+    {
+        return $this->hasMany(CharacterBuff::class, 'character_id');
+    }
 }
