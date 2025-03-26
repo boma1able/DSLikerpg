@@ -3,16 +3,20 @@
 namespace App\Livewire\Character;
 
 use App\Models\Character;
+use App\Models\CharacterBuff;
 use Livewire\Component;
 
 class CharacterAttributes extends Component
 {
     public $character, $body, $strength, $dexterity, $intelligence, $damage, $magic_damage, $armor;
     public $skill_points;
+    public $buffs = [];
+    public $buffsActiveStatus = [];
 
     protected $listeners = [
         'characterUpdated' => 'updateCharacter',
         'schoolUpdated' => 'updateSchool',
+        'updateBuffsInCard' => 'loadBuffs',
     ];
 
     public function mount(Character $character)
@@ -22,6 +26,10 @@ class CharacterAttributes extends Component
         $this->strength = $character->strength;
         $this->dexterity = $character->dexterity;
         $this->intelligence = $character->intelligence;
+
+        $this->buffsActiveStatus = CharacterBuff::where('is_active', 1)
+            ->pluck('is_active', 'id')
+            ->toArray();
 
         // Оновлюємо максимальне здоров'я і поточне здоров'я
         $this->updateCharacter();
@@ -50,6 +58,10 @@ class CharacterAttributes extends Component
 //        $this->character->armor = $totalArmor;
 //    }
 
+    public function loadBuffs()
+    {
+        $this->buffs = CharacterBuff::where('character_id', auth()->id())->get();
+    }
 
     public function closeModal()
     {

@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\CharacterBuff;
 use Livewire\Component;
 use App\Models\Character;
 use App\Models\School;
@@ -16,6 +17,7 @@ class LearnSchool extends Component
     public $school;
     public $schools = [];
     public $selectedSchoolLabel;
+    public $buffs = [];
 
     public $schoolLevels = [
         'body' => [
@@ -107,12 +109,18 @@ class LearnSchool extends Component
 
     protected $listeners = [
         'characterUpdated' => 'updateCharacter', //оновлює на фронті кількість скілпоінтів
+        'updateBuffsInCard' => 'loadBuffs',
+        'buffActivated' => 'refreshCharacterAttributes',
     ];
 
     public function mount($school_name = 'body')
     {
         $this->character = Auth::user()->character;
         $this->selectedSchool = $school_name;
+
+        $this->buffsActiveStatus = CharacterBuff::where('is_active', 1)
+            ->pluck('is_active', 'id')
+            ->toArray();
 
         $availableSchools = [
             'body' => 'Тіла',
@@ -148,6 +156,11 @@ class LearnSchool extends Component
 
         // Оновлюємо бонуси та інші дані
         $this->updateCharacter();
+    }
+
+    public function loadBuffs()
+    {
+        $this->buffs = CharacterBuff::where('character_id', auth()->id())->get();
     }
 
     public function updatedSelectedSchool($school)
@@ -238,10 +251,26 @@ class LearnSchool extends Component
             $currentSchoolLevelMagicHitChanceBonus = isset($levelBonuses['magic_hit_chance']) ? $levelBonuses['magic_hit_chance'] : 0;
             $currentSchoolLevelMagicHitChanceBonus += ($this->character->school_magic_hit_chance_bonus ?? 0) + $currentSchoolLevelMagicHitChanceBonusModifier;
 
-//            dd($currentSchoolLevelArmorBonus);
+            $buffAmount = null;
+            $buffIsActive = false;
+
+            $buff = CharacterBuff::where('buff_name', 'body_boost')->first();
+            if ($buff->is_active === 1) {
+                $buffAmount = $buff->buff_amount;
+                $buffIsActive = true;
+            }
+
+            $bodySchoolBuffBonus = ($buffIsActive && isset($this->character->base_body))
+                ? (int) round(($buffAmount / 100) * $this->character->base_body)
+                : 0;
+
+            $healthSchoolBuffBonus = $bodySchoolBuffBonus > 0 ? $bodySchoolBuffBonus * 8 : 0;
+
+//            dump($healthSchoolBuffBonus);
 
             // Оновлюємо значення
-            $totalHealth =  $currentSchoolLevelHealthBonusOnly + $this->character->base_health;
+            $body = $this->character->base_body + $totalSchoolBodyBonus + $bodySchoolBuffBonus;
+            $totalHealth = $healthSchoolBuffBonus + $currentSchoolLevelHealthBonusOnly + $this->character->base_health;
             $totalDamage = $this->character->base_damage + $currentSchoolLevelDamageBonus;
             $totalMagicDamage = $this->character->base_magic_damage + $currentSchoolLevelMagicDamageBonus;
             $totalArmor = $this->character->base_armor + $currentSchoolLevelArmorBonus;
@@ -252,13 +281,14 @@ class LearnSchool extends Component
             // Оновлюємо інші параметри, якщо потрібно
             $this->character->update([
                 'max_health' => $totalHealth,
+                'school_health_bonus' => $currentSchoolLevelHealthBonusOnly,
                 'damage' => $totalDamage,
                 'hit_chance' => $totalHitChance,
                 'magic_damage' => $totalMagicDamage,
                 'magic_hit_chance' => $totalMagicHitChance,
                 'armor' => $totalArmor,
                 'max_mana' => $totalMana,
-                'school_health_bonus' => $currentSchoolLevelHealthBonusOnly,
+                'body' => $body,
                 'school_mana_bonus' => $currentSchoolLevelManaBonus,
                 'school_damage_bonus' => $currentSchoolLevelDamageBonus,
                 'school_hit_chance_bonus' => $currentSchoolLevelHitChanceBonus,
@@ -342,6 +372,10 @@ class LearnSchool extends Component
         return $labels[$buffName] ?? ucfirst(str_replace('_', ' ', $buffName));
     }
 
+    public function refreshCharacterAttributes()
+    {
+        $this->character->refresh();
+    }
 
     public function closeModal()
     {

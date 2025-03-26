@@ -10,9 +10,9 @@ class Character extends Model
 
     protected $fillable = [
         'user_id', 'race', 'avatar', 'class', 'level',
-        'health', 'max_health', 'base_health', 'school_health_bonus', 'school_body_bonus',
+        'health', 'max_health', 'base_health', 'school_health_bonus', 'school_buff_health_bonus',
         'mana', 'base_mana', 'max_mana', 'school_mana_bonus',
-        'body', 'base_body', 'school_body_bonus',
+        'body', 'base_body', 'school_body_bonus', 'school_buff_body_bonus',
         'strength', 'base_strength', 'school_strength_bonus',
         'dexterity', 'base_dexterity', 'school_dexterity_bonus', 'base_hit_chance', 'hit_chance', 'school_hit_chance_bonus',
         'intelligence', 'base_intelligence', 'school_intelligence_bonus',

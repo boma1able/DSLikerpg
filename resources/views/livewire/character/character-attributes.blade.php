@@ -1,6 +1,17 @@
 <div class="relative">
     <h2 class="text-xl text-gray-500 font-bold mb-4">Атрибути персонажа</h2>
 
+    <div wire:poll.2s="loadBuffs">
+        @foreach ($buffs as $buff)
+            @if ($buff->is_active)
+                <li class="flex justify-between whitespace-nowrap">
+                    <span class="mr-2">[{{ $buff->buff_amount }}] {{ $buff->label }}</span>
+                </li>
+            @endif
+        @endforeach
+    </div>
+
+
     <div class="overflow-x-auto">
         <table class="min-w-full text-xs bg-white border border-gray-300">
             <thead>
@@ -20,7 +31,7 @@
                     <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['base_body'] }}</td>
                     <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['school_body_bonus'] }}</td>
                     <td class="px-2 py-2 border border-gray-300 text-center">-</td>
-                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['school_buff_body_bonus'] }}</td>
                     <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['body'] }}</td>
                 </tr>
                 <tr>
@@ -100,7 +111,7 @@
                     <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['base_health'] }}</td>
                     <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['school_health_bonus'] }}</td>
                     <td class="px-2 py-2 border border-gray-300 text-center">-</td>
-                    <td class="px-2 py-2 border border-gray-300 text-center">-</td>
+                    <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['school_buff_health_bonus'] }}</td>
                     <td class="px-2 py-2 border border-gray-300 text-center">{{ $this->character['max_health'] }}</td>
                 </tr>
                 <tr>

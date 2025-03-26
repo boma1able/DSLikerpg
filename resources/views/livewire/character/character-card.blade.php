@@ -36,7 +36,6 @@
                         @if ($buff->is_active)
                             <li class="flex justify-between whitespace-nowrap">
                                 <span class="mr-2">[{{ $buff->level }}] {{ $buff->label }}</span>
-                                {{ $buff->name }}
                                 @php
                                     $remainingSeconds = max(0, now()->diffInSeconds($buff->applied_at));
                                     $minutes = intdiv($remainingSeconds, 60);

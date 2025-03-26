@@ -21,7 +21,9 @@ return new class extends Migration
             $table->integer('max_health')->nullable();
             $table->integer('base_health')->default(0);
             $table->integer('school_health_bonus')->default(0);
+            $table->integer('school_buff_health_bonus')->default(0);
             $table->integer('school_body_bonus')->default(0);
+            $table->integer('school_buff_body_bonus')->default(0);
             $table->integer('school_damage_bonus')->default(0);
             $table->integer('school_hit_chance_bonus')->default(0);
             $table->integer('school_magic_damage_bonus')->default(0);

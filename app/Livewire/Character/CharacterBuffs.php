@@ -28,6 +28,16 @@ class CharacterBuffs extends Component
         $this->loadBuffs();
     }
 
+    public function updateSchool($totalHealth, $totalDamage, $totalMagicDamage, $totalArmor, $totalMana)
+    {
+        // Оновлюємо атрибути персонажа
+        $this->character->max_health = $totalHealth;
+        $this->character->max_mana = $totalMana;
+        $this->character->damage = $totalDamage;
+        $this->character->magic_damage = $totalMagicDamage;
+        $this->character->armor = $totalArmor;
+    }
+
     public function refreshBuffs()
     {
         $this->buffs = $this->character->buffs;
@@ -83,16 +93,46 @@ class CharacterBuffs extends Component
 
         if ($buff) {
             $buff->is_active = 1;
-            $buff->applied_at = now()->addMinutes(2);
+            $buff->applied_at = now()->addMinutes(0.1);
             $buff->save();
+
+            $character = auth()->user()->character;
+
+            // Додаємо баф до активних
+            $activeBuffs = CharacterBuff::where('character_id', $character->id)
+                ->where('is_active', 1)
+                ->get();
+
+            $totalBodyBonus = 0;
+            $totalHealthBonus = 0;
+
+            foreach ($activeBuffs as $activeBuff) {
+                $buffAmount = $activeBuff->buff_amount; // % бонусу
+                $bodyBonus = (int) round(($buffAmount / 100) * $character->base_body);
+                $bodySchoolBonus = $character->school_body_bonus;
+                $healthBonus = $bodyBonus * 8;
+                $healthSchoolBonus = $character->school_health_bonus;
+
+                $totalBodyBonus += $bodyBonus;
+                $totalHealthBonus += $healthBonus;
+            }
+
+            // Оновлюємо атрибути персонажа
+            $character->update([
+                'school_buff_body_bonus' => $totalBodyBonus,
+                'school_buff_health_bonus' => $totalHealthBonus,
+                'max_health' => $character->base_health + $totalHealthBonus + $healthSchoolBonus,
+                'body' => $character->base_body + $totalBodyBonus + $bodySchoolBonus,
+            ]);
 
             $this->dispatch('buffActivated', $buffId);
 
-            DeactivateBuffJob::dispatch($buff->id)->delay(now()->addMinutes(2));
+            DeactivateBuffJob::dispatch($buff->id)->delay(now()->addMinutes(0.1));
 
             $this->refreshBuffs();
         }
     }
+
 
 
     public function loadBuffs()
