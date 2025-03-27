@@ -39,6 +39,8 @@
                 'magic_hit_chance' => 'Шанс магічного удару',
                 'body_boost' => 'Ведмежа кров',
                 'strength_boost' => 'Сила тигра',
+                'dexterity_boost' => 'Котяча грація',
+                'intelligence_boost' => 'Мудрість сови',
             ];
         @endphp
 

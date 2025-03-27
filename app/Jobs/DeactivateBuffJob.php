@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Events\BuffDeactivated;
 use App\Models\Character;
 use App\Models\CharacterBuff;
+use App\Services\CharacterBuffService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -33,15 +34,7 @@ class DeactivateBuffJob implements ShouldQueue
             $character = Character::find($buff->character_id);
 
             if ($character) {
-                $bodyBonus = $character->school_buff_body_bonus;
-                $healthBonus = $character->school_buff_health_bonus;
-
-                $character->update([
-                    'school_buff_body_bonus' => 0,
-                    'school_buff_health_bonus' => 0,
-                    'max_health' => max($character->max_health - $healthBonus, $character->base_health),
-                    'body' => max($character->body - $bodyBonus, $character->base_body),
-                ]);
+                CharacterBuffService::updateCharacterBuffs($character);
             }
         }
     }

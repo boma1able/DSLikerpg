@@ -91,12 +91,12 @@ class LearnSchool extends Component
         'warlock' => [
             1 => ['body_boost' => 1, 'strength_boost' => 1],
             2 => ['body_boost' => 1, 'strength_boost' => 1],
-            3 => ['body_boost' => 1],
-            4 => ['body_boost' => 1],
-            5 => ['body_boost' => 1],
-            6 => ['body_boost' => 1],
-            7 => ['body_boost' => 1],
-            8 => ['body_boost' => 1],
+            3 => ['dexterity_boost' => 1],
+            4 => ['intelligence_boost' => 1],
+            5 => ['intelligence_boost' => 1],
+            6 => ['intelligence_boost' => 1],
+            7 => ['intelligence_boost' => 1],
+            8 => ['intelligence_boost' => 1],
             9 => ['body_boost' => 1],
             10 => ['body_boost' => 1],
             11 => ['body_boost' => 1],
@@ -140,7 +140,7 @@ class LearnSchool extends Component
                     'character_id' => $this->character->id,
                     'school_name' => $school,
                     'level' => 0,
-                    'label' => $label,  // Додаємо лейбл
+                    'label' => $label,
                 ]);
 
                 // Додаємо нову школу до колекції
@@ -251,52 +251,71 @@ class LearnSchool extends Component
             $currentSchoolLevelMagicHitChanceBonus = isset($levelBonuses['magic_hit_chance']) ? $levelBonuses['magic_hit_chance'] : 0;
             $currentSchoolLevelMagicHitChanceBonus += ($this->character->school_magic_hit_chance_bonus ?? 0) + $currentSchoolLevelMagicHitChanceBonusModifier;
 
-            $buffAmount = null;
+            $buffs = CharacterBuff::where('is_active', 1)->get();
+            $buffAmount = 0;
             $buffIsActive = false;
 
-            $buff = CharacterBuff::where('buff_name', 'body_boost')->first();
-            if ($buff->is_active === 1) {
-                $buffAmount = $buff->buff_amount;
+            foreach ($buffs as $buff) {
+                $buffAmount += $buff->buff_amount;
                 $buffIsActive = true;
             }
 
             $bodySchoolBuffBonus = ($buffIsActive && isset($this->character->base_body))
                 ? (int) round(($buffAmount / 100) * $this->character->base_body)
                 : 0;
+            $strengthSchoolBuffBonus = ($buffIsActive && isset($this->character->base_strength))
+                ? (int) round(($buffAmount / 100) * $this->character->base_strength)
+                : 0;
+            $dexteritySchoolBuffBonus = ($buffIsActive && isset($this->character->base_dexterity))
+                ? (int) round(($buffAmount / 100) * $this->character->base_dexterity)
+                : 0;
+            $intelligenceSchoolBuffBonus = ($buffIsActive && isset($this->character->base_intelligence))
+                ? (int) round(($buffAmount / 100) * $this->character->base_intelligence)
+                : 0;
 
             $healthSchoolBuffBonus = $bodySchoolBuffBonus > 0 ? $bodySchoolBuffBonus * 8 : 0;
-
-//            dump($healthSchoolBuffBonus);
+            $manaSchoolBuffBonus = $intelligenceSchoolBuffBonus > 0 ? $intelligenceSchoolBuffBonus * 4 : 0;
+            $damageSchoolBuffBonus = $strengthSchoolBuffBonus > 0 ? $strengthSchoolBuffBonus * 1 : 0;
+            $magicDamageSchoolBuffBonus = $intelligenceSchoolBuffBonus > 0 ? $intelligenceSchoolBuffBonus * 1 : 0;
+            $hitChanceSchoolBuffBonus = $dexteritySchoolBuffBonus > 0 ? $dexteritySchoolBuffBonus * 2 : 0;
+            $magicHitChanceSchoolBuffBonus = $intelligenceSchoolBuffBonus > 0 ? $intelligenceSchoolBuffBonus * 2 : 0;
+            $armorSchoolBuffBonus = $dexteritySchoolBuffBonus > 0 ? $dexteritySchoolBuffBonus * 3 : 0;
 
             // Оновлюємо значення
             $body = $this->character->base_body + $totalSchoolBodyBonus + $bodySchoolBuffBonus;
+            $strength = $this->character->base_strength + $totalSchoolStrengthBonus + $strengthSchoolBuffBonus;
+            $dexterity = $this->character->base_dexterity + $totalSchoolDexterityBonus + $dexteritySchoolBuffBonus;
+            $intelligence = $this->character->base_intelligence + $totalSchoolIntelligenceBonus + $intelligenceSchoolBuffBonus;
             $totalHealth = $healthSchoolBuffBonus + $currentSchoolLevelHealthBonusOnly + $this->character->base_health;
-            $totalDamage = $this->character->base_damage + $currentSchoolLevelDamageBonus;
-            $totalMagicDamage = $this->character->base_magic_damage + $currentSchoolLevelMagicDamageBonus;
-            $totalArmor = $this->character->base_armor + $currentSchoolLevelArmorBonus;
-            $totalMana = $this->character->base_mana + $currentSchoolLevelManaBonus;
-            $totalHitChance = $this->character->base_hit_chance + $currentSchoolLevelHitChanceBonus;
-            $totalMagicHitChance = $this->character->base_magic_hit_chance + $currentSchoolLevelMagicHitChanceBonus;
+            $totalMana = $manaSchoolBuffBonus + $currentSchoolLevelManaBonus + $this->character->base_mana;
+            $totalDamage = $damageSchoolBuffBonus + $this->character->base_damage + $currentSchoolLevelDamageBonus;
+            $totalMagicDamage = $magicDamageSchoolBuffBonus + $this->character->base_magic_damage + $currentSchoolLevelMagicDamageBonus;
+            $totalArmor = $armorSchoolBuffBonus + $this->character->base_armor + $currentSchoolLevelArmorBonus;
+            $totalHitChance = $hitChanceSchoolBuffBonus + $this->character->base_hit_chance + $currentSchoolLevelHitChanceBonus;
+            $totalMagicHitChance = $magicHitChanceSchoolBuffBonus + $this->character->base_magic_hit_chance + $currentSchoolLevelMagicHitChanceBonus;
 
             // Оновлюємо інші параметри, якщо потрібно
             $this->character->update([
                 'max_health' => $totalHealth,
                 'school_health_bonus' => $currentSchoolLevelHealthBonusOnly,
                 'damage' => $totalDamage,
+                'school_damage_bonus' => $currentSchoolLevelDamageBonus,
                 'hit_chance' => $totalHitChance,
+                'school_hit_chance_bonus' => $currentSchoolLevelHitChanceBonus,
                 'magic_damage' => $totalMagicDamage,
-                'magic_hit_chance' => $totalMagicHitChance,
+                'school_magic_damage_bonus' => $currentSchoolLevelMagicDamageBonus,
                 'armor' => $totalArmor,
                 'max_mana' => $totalMana,
-                'body' => $body,
                 'school_mana_bonus' => $currentSchoolLevelManaBonus,
-                'school_damage_bonus' => $currentSchoolLevelDamageBonus,
-                'school_hit_chance_bonus' => $currentSchoolLevelHitChanceBonus,
-                'school_magic_damage_bonus' => $currentSchoolLevelMagicDamageBonus,
+                'magic_hit_chance' => $totalMagicHitChance,
                 'school_magic_hit_chance_bonus' => $currentSchoolLevelMagicHitChanceBonus,
+                'body' => $body,
                 'school_body_bonus' => $totalSchoolBodyBonus,
+                'strength' => $strength,
                 'school_strength_bonus' => $totalSchoolStrengthBonus,
+                '$dexterity' => $dexterity,
                 'school_dexterity_bonus' => $totalSchoolDexterityBonus,
+                'intelligence' => $intelligence,
                 'school_intelligence_bonus' => $totalSchoolIntelligenceBonus,
                 'school_armor_bonus' => $currentSchoolLevelArmorBonus,
             ]);
@@ -367,6 +386,8 @@ class LearnSchool extends Component
         $labels = [
             'body_boost' => 'Ведмежа кров',
             'strength_boost' => 'Сила тигра',
+            'dexterity_boost' => 'Котяча грація',
+            'intelligence_boost' => 'Мудрість сови',
         ];
 
         return $labels[$buffName] ?? ucfirst(str_replace('_', ' ', $buffName));

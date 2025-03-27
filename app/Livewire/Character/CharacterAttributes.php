@@ -12,6 +12,7 @@ class CharacterAttributes extends Component
     public $skill_points;
     public $buffs = [];
     public $buffsActiveStatus = [];
+    public $log = [];
 
     protected $listeners = [
         'characterUpdated' => 'updateCharacter',
@@ -31,15 +32,7 @@ class CharacterAttributes extends Component
             ->pluck('is_active', 'id')
             ->toArray();
 
-        // Оновлюємо максимальне здоров'я і поточне здоров'я
         $this->updateCharacter();
-//        $this->updateSchool(
-//            $this->character->max_health,
-//            $this->character->max_mana,
-//            $this->character->damage,
-//            $this->character->magic_damage,
-//            $this->character->armor,
-//        );
     }
 
     public function updateCharacter()
@@ -48,20 +41,35 @@ class CharacterAttributes extends Component
         $this->skill_points = $this->character->skill_points;
     }
 
-//    public function updateSchool($totalHealth, $totalDamage, $totalMagicDamage, $totalArmor, $totalMana)
-//    {
-//        // Оновлюємо атрибути персонажа
-//        $this->character->max_health = $totalHealth;
-//        $this->character->max_mana = $totalMana;
-//        $this->character->damage = $totalDamage;
-//        $this->character->magic_damage = $totalMagicDamage;
-//        $this->character->armor = $totalArmor;
-//    }
-
     public function loadBuffs()
     {
         $this->buffs = CharacterBuff::where('character_id', auth()->id())->get();
+
+        $currentBuffsStatus = [];
+
+        foreach ($this->buffs as $buff) {
+            if ($buff->is_active != ($this->buffsActiveStatus[$buff->id] ?? 0)) {
+                if ($buff->is_active) {
+                    $this->addLogMessage("<span class='text-blue-700 font-semibold'>Бафф [{$buff->label}] застосовано!</span>");
+                } else {
+                    // Якщо баф завершився
+                    $this->addLogMessage("<span class='text-blue-900 font-semibold'>Дія бафу [{$buff->label}] завершилась!</span>");
+                }
+            }
+
+            $currentBuffsStatus[$buff->id] = $buff->is_active;
+        }
+
+        $this->buffsActiveStatus = $currentBuffsStatus;
     }
+
+    public function addLogMessage($message)
+    {
+        $this->log[] = "{$message}";
+
+        $this->dispatch('addLogMessage', $message);
+    }
+
 
     public function closeModal()
     {
