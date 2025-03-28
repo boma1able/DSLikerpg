@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('avatar');
             $table->integer('health');
+            $table->integer('mana');
             $table->integer('damage');
             $table->integer('level');
             $table->integer('experience');
@@ -25,6 +26,9 @@ return new class extends Migration
             $table->integer('armor')->default(0);
             $table->integer('gold_min')->default(0);
             $table->integer('gold_max')->default(0);
+            $table->integer('min_poll_interval');
+            $table->integer('max_poll_interval');
+            $table->unsignedBigInteger('next_move_time')->nullable();
             $table->timestamps();
         });
 

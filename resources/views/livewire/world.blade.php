@@ -6,8 +6,6 @@
             <livewire:character.character-card/>
 
             <div class="w-[83px] border-r-[3px] border-[#eee]"
-                 x-data="{ x: 0, y: 0 }"
-                 @mousemove="x = $event.offsetX; y = $event.offsetY"
             >
                 @foreach ($monsters as $monster)
                     @if (-$monster['position_x'] === $offsetX && -$monster['position_y'] === $offsetY)
@@ -19,9 +17,11 @@
                                 <span class="relative z-1 w-full h-[8px] items-center" style="line-height: 12px; font-weight: 600"></span>
                                 <span style="position: absolute; top: 0; left: 0; width: {{ ($monster['max_health'] > 0 && $monster['health'] > 0) ? ($monster['health'] / $monster['max_health']) * 100 : 0 }}%; background: linear-gradient(90deg, #fc6363 0%, #da2d2d 70%, #a00404 90%); height: 100%;"></span>
                             </div>
-                            <div class="absolute w-auto left-[80%] top-[80%] border border-gray-400 bg-white p-2 text-xs transition-transform duration-0 opacity-100 z-[-1] group-hover:opacity-100 group-hover:z-1"
-                                 :style="'left: ' + (x + 14) + 'px; top: ' + (y + 14) + 'px'"
-                            >
+                            <div class="flex relative bg-[#6767677d] text-[8px] text-black">
+                                <span class="relative z-1 w-full h-[8px] items-center" style="line-height: 12px; font-weight: 600"></span>
+                                <span style="position: absolute; top: 0; left: 0; width: {{ ($monster['max_mana'] > 0 && $monster['mana'] > 0) ? ($monster['mana'] / $monster['max_mana']) * 100 : 0 }}%; background: linear-gradient(90deg, #63adfc 0%, #322dda 70%, #02356b 90%); height: 100%;"></span>
+                            </div>
+                            <div class="absolute w-auto left-[100%] top-1 border border-gray-400 bg-white p-2 text-xs transition-transform duration-0 opacity-100 z-[-1] invisible group-hover:opacity-100 group-hover:z-1 group-hover:visible pointer-events-none">
                                 <span style="white-space: nowrap">{{ $monster['name'] }} [{{ $monster['level'] }}]</span>
                             </div>
                         </div>
@@ -116,7 +116,7 @@
                     </div>
                 </div>
 
-                <div wire:poll.30s="moveMonsters"></div>
+                <div wire:poll="moveMonsters"></div>
 
                 <div style="padding: 15px 0 0; color: #eee; font-size: 12px; line-height: 20px;">
                     <ul>

@@ -285,7 +285,9 @@ class World extends Component
                 'experience' => $monster['experience'],
                 'avatar' => $monster['avatar'],
                 'max_health' => $monster['health'],
+                'max_mana' => $monster['mana'],
                 'health' => $monster['health'],
+                'mana' => $monster['mana'],
                 'damage' => $monster['damage'],
                 'armor' => $monster['armor'],
                 'hit_chance' => $monster['hit_chance'],
@@ -293,6 +295,8 @@ class World extends Component
                 'position_y' => $randomPosition['y'],
                 'gold_min' => $monster['gold_min'],
                 'gold_max' => $monster['gold_max'],
+                'min_poll_interval' => $monster['min_poll_interval'],
+                'max_poll_interval' => $monster['max_poll_interval'],
             ];
 
             // Оновлюємо позицію монстра в базі даних
@@ -334,6 +338,7 @@ class World extends Component
                 'experience' => $monster->experience,
                 'avatar' => $monster->avatar,
                 'health' => $monster->health,
+                'mana' => $monster->mana,
                 'damage' => $monster->damage,
                 'armor' => $monster->armor,
                 'hit_chance' => $monster->hit_chance,
@@ -341,6 +346,8 @@ class World extends Component
                 'position_y' => $randomPosition['y'],
                 'gold_min' => $monster->gold_min,
                 'gold_max' => $monster->gold_max,
+                'min_poll_interval' => $monster->min_poll_interval,
+                'max_poll_interval' => $monster->max_poll_interval,
             ]], true);
         }
     }
@@ -350,6 +357,19 @@ class World extends Component
         foreach ($this->monsters as &$monster) {
             if ($this->inBattle) {
                 return;
+            }
+
+            // Отримуємо поточний час
+            $currentTime = now()->timestamp;
+
+            // Якщо у монстра немає next_move_time, встановлюємо йому випадковий час руху
+            if (!isset($monster['next_move_time'])) {
+                $monster['next_move_time'] = $currentTime + rand($monster['min_poll_interval'], $monster['max_poll_interval']);
+            }
+
+            // Перевіряємо, чи настав час для руху монстра
+            if ($currentTime < $monster['next_move_time']) {
+                continue; // Чекаємо, поки настане час для руху
             }
 
             $possibleMoves = [
@@ -383,25 +403,31 @@ class World extends Component
                         $this->addLogMessage("<span class='text-gray-400'>{$monster['name']} пішов $direction.</span>");
                     }
 
+                    // Оновлюємо позицію монстра
                     Monster::where('id', $monster['id'])->update([
                         'position_x' => $newMonsterX,
                         'position_y' => $newMonsterY,
+                        'next_move_time' => $currentTime + rand($monster['min_poll_interval'], $monster['max_poll_interval']), // Встановлюємо новий час руху
                     ]);
 
+                    // Оновлюємо дані монстра у локальному масиві
                     $monster['position_x'] = $newMonsterX;
                     $monster['position_y'] = $newMonsterY;
+                    $monster['next_move_time'] = $currentTime + rand($monster['min_poll_interval'], $monster['max_poll_interval']);
 
                     if ($newMonsterX === $this->characterPositionX && $newMonsterY === $this->characterPositionY) {
                         $message = MonsterEncounterService::getMessage($monster['name']);
                         $this->addLogMessage("<span class='text-gray-400'>$message</span>");
                     }
 
+                    // Відправляємо оновлення монстрів
                     $this->dispatch('monstersUpdated', $this->monsters);
                     break;
                 }
             }
         }
     }
+
 
     public function getValidPositions()
     {
@@ -464,6 +490,8 @@ class World extends Component
         if (!$this->inBattle || $this->currentTargetMonsterId !== $monsterId) {
             return;
         }
+
+        $this->character = Character::find($this->character['id'])->toArray();
 
         // Шукаємо монстра за ID
         $monsterIndex = collect($this->monsters)->search(fn($m) => $m['id'] == $monsterId);

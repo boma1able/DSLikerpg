@@ -9,7 +9,7 @@ class Monster extends Model
     public $timestamps = true;
 
     protected $fillable = [
-        'avatar', 'name', 'level', 'experience', 'position_x', 'position_y', 'health', 'damage', 'damage_min', 'damage_max', 'hit_chance'
+        'avatar', 'name', 'level', 'experience', 'position_x', 'position_y', 'health', 'mana', 'damage', 'damage_min', 'damage_max', 'hit_chance'
     ];
 
     // Метод для атаки монстра

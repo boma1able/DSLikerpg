@@ -103,7 +103,7 @@ class CharacterBuffs extends Component
 
             $this->dispatch('buffActivated', $buffId);
 
-            DeactivateBuffJob::dispatch($buff->id)->delay(now()->addMinutes(0.1));
+            DeactivateBuffJob::dispatch($buff->id)->delay(now()->addMinutes(.5));
 
             $this->refreshBuffs();
         }

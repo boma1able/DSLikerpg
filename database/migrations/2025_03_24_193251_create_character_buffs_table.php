@@ -18,7 +18,8 @@ return new class extends Migration
             $table->string('label');
             $table->integer('level')->default(1);
             $table->float('buff_amount');
-            $table->timestamp('applied_at')->nullable();
+            $table->dateTime('applied_at')->nullable();
+            $table->integer('duration')->default(120);
             $table->json('applied_bonuses')->nullable();
             $table->boolean('is_active')->default(false);
             $table->integer('hotkey')->nullable();

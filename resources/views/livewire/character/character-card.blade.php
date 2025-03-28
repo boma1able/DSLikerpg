@@ -1,8 +1,5 @@
 <div class="w-[83px] border-r-[3px] border-[#eee]">
-    <div class="group relative"
-         x-data="{ x: 0, y: 0 }"
-         @mousemove="x = $event.offsetX; y = $event.offsetY"
-    >
+    <div class="group relative">
         <div class="w-[80px] h-[110px]">
             <img src="{{ asset('storage/' . (auth()->user()->character->avatar ?? 'default-avatar.jpg')) }}"
                  style="display: block;"
@@ -10,8 +7,8 @@
                  alt="Character Avatar">
         </div>
         <div>
-            <div class="relative flex bg-[#6767677d] text-[8px] text-black">
-                <span style="position: relative; z-index: 1; height: 8px; text-align: center; width: 100%; line-height: 12px; font-weight: 600">{{ $character->health }} / {{ $character->max_health }}</span>
+            <div class="relative flex bg-[#6767677d] text-[8px] text-black overflow-hidden">
+                <span style="position: relative; z-index: 1; height: 8px; text-align: center; width: 100%; line-height: 12px; font-weight: 600;">{{ $character->health }} / {{ $character->max_health }}</span>
                 <span style="position: absolute; top: 0; left: 0; width: {{ $character->max_health > 0 ? ($character->health / $character->max_health) * 100 : 0 }}%; background: linear-gradient(90deg, #fc6363 0%, #da2d2d 70%, #8b0000 90%); height: 100%;"></span>
             </div>
             <div class="relative flex bg-[#6767677d] text-[8px] text-black">
@@ -27,20 +24,22 @@
 
         <!-- Tooltip text following the mouse -->
         <div class="absolute w-full h-full top-1 left-0 z-10">
-            <div class="absolute w-auto left-0 top-0 border border-gray-400 bg-white p-2 text-xs z-[-1] opacity-0 group-hover:opacity-100 group-hover:z-1"
-                 :style="'left: ' + (x + 14) + 'px; top: ' + (y + 14) + 'px'"
-            >
+            <div class="absolute w-auto left-[100%] top-0 border border-gray-400 bg-white p-2 text-xs z-[-1] opacity-0 group-hover:opacity-100 group-hover:z-1 invisible group-hover:visible pointer-events-none">
                 <span style="white-space: nowrap">{{ auth()->user()->name }} [{{ $character->level }}]</span>
                 <ul wire:poll.2s="loadBuffs" class="text-black mt-3">
                     @foreach ($buffs as $buff)
                         @if ($buff->is_active)
-                            <li class="flex justify-between whitespace-nowrap">
+                            <li class="flex justify-between whitespace-nowrap first:border-t-1 first:border-gray-300">
                                 <span class="mr-2">[{{ $buff->level }}] {{ $buff->label }}</span>
                                 @php
-                                    $remainingSeconds = max(0, now()->diffInSeconds($buff->applied_at));
-                                    $minutes = intdiv($remainingSeconds, 60);
-                                    $seconds = $remainingSeconds % 60;
+                                    $expiresAt = \Carbon\Carbon::parse($buff->applied_at)->addSeconds($buff->duration)->setTimezone('Europe/Kiev');
+                                    $now = now()->setTimezone('Europe/Kiev');
+                                    $remainingSeconds = $expiresAt->diffInSeconds($now, false);
+                                    $absRemainingSeconds = abs($remainingSeconds);
+                                    $minutes = intdiv($absRemainingSeconds, 60);
+                                    $seconds = $absRemainingSeconds % 60;
                                 @endphp
+
                                 <span class="flex">
                                     <span class="block w-4 text-center">{{ str_pad($minutes, 2, '0', STR_PAD_LEFT) }}</span>:
                                     <span class="block w-4 text-center">{{ str_pad($seconds, 2, '0', STR_PAD_LEFT) }}</span>
@@ -62,7 +61,7 @@
         @endif
 
         @foreach ($buffs as $buff)
-            @if ($buff->is_active)
+            @if ($buffs->where('is_active', true)->isNotEmpty())
                 <div class="absolute top-[5px] left-[5px]">
                     <svg class="w-3 h-3" viewBox="0 0 48 48" stroke="#00f3ff" stroke-width="4" xmlns="http://www.w3.org/2000/svg">
                         <g>
@@ -71,7 +70,6 @@
                         </g>
                     </svg>
                 </div>
-                @break
             @endif
         @endforeach
 
