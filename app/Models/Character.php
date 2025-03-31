@@ -35,6 +35,17 @@ class Character extends Model
         return $this->hasOne(Inventory::class);
     }
 
+    protected static function booted()
+    {
+        static::created(function ($character) {
+
+            Inventory::create([
+                'user_id' => $character->user_id,
+                'character_id' => $character->id,
+            ]);
+        });
+    }
+
     public function equipment()
     {
         return $this->hasOne(Equipment::class);
@@ -49,4 +60,17 @@ class Character extends Model
     {
         return $this->hasMany(CharacterBuff::class, 'character_id');
     }
+
+    public function addToInventory(Item $item)
+    {
+        $inventory = $this->inventory; // Отримуємо інвентар персонажа
+
+        if (!$inventory) {
+            return; // Якщо в персонажа немає інвентаря, нічого не робимо
+        }
+
+        // Додаємо предмет в інвентар
+        $inventory->items()->attach($item->id); // або з кількістю, якщо це необхідно
+    }
+
 }

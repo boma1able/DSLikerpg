@@ -3,8 +3,11 @@
 namespace App\Livewire;
 
 use App\Models\Character;
+use App\Models\Item;
 use App\Models\Monster;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use App\Services\MonsterEncounterService;
 
@@ -82,6 +85,16 @@ class World extends Component
             }
         } else {
             return $this->redirectRoute('login');
+        }
+
+        $inventory = auth()->user()->inventory;
+
+        if ($inventory) {
+            // Якщо інвентар існує, завантажуємо предмети
+            $this->items = $inventory->items;
+        } else {
+            // Якщо інвентар відсутній, присвоюємо порожню колекцію
+            $this->items = collect();
         }
 
         $this->map = json_decode(file_get_contents(storage_path('app/map.json')), true);
@@ -349,6 +362,7 @@ class World extends Component
                 'min_poll_interval' => $monster->min_poll_interval,
                 'max_poll_interval' => $monster->max_poll_interval,
             ]], true);
+
         }
     }
 
@@ -532,8 +546,10 @@ class World extends Component
             $this->dispatch('goldUpdated', $this->character['gold']);
             $this->addLogMessage("Ви отримали $goldAmount золота від {$monster['name']}!");
 
-            $respawnMonster = $this->monsters[$monsterIndex];
+            $monster = Monster::find($monsterId);
+            $this->handleLoot($monster->id);
 
+            $respawnMonster = $this->monsters[$monsterIndex];
             unset($this->monsters[$monsterIndex]);
             $this->monsters = array_values($this->monsters);
 
@@ -570,6 +586,74 @@ class World extends Component
 
         $this->dispatch('characterUpdated');
     }
+
+
+    public function handleLoot(int $monsterId)
+    {
+        $monster = Monster::findOrFail($monsterId);
+
+        $lootItems = $monster->loot()->get();
+
+        foreach ($lootItems as $loot) {
+            $chance = rand(1, 100);
+
+            if ($chance <= $loot->drop_chance) {
+                $item = Item::find($loot->item_id);
+
+                if ($item) {
+                    $this->addToInventory($item);
+                    $this->addLogMessage("Ви підбираєте {$item->name}");
+                }
+            }
+        }
+    }
+
+    public function addToInventory(Item $item)
+    {
+        $inventory = auth()->user()->inventory;
+
+        if (!$inventory) {
+            return;
+        }
+
+        $existingItem = Item::where('name', $item->name)
+            ->where('level', $item->level)
+            ->where('type', $item->type)
+            ->first();
+
+        // Отримуємо неповний стак цього предмета
+        $inventoryItem = DB::table('inventory_item')
+            ->where('inventory_id', $inventory->id)
+            ->where('item_id', $existingItem->id)
+            ->where('quantity', '<', $existingItem->max_stack)
+            ->orderBy('id')
+            ->first();
+
+        if ($existingItem->stackable === 1 && $inventoryItem) {
+            // Рахуємо нову кількість, але не більше max_stack
+            $newQuantity = min($inventoryItem->quantity + 1, $existingItem->max_stack);
+
+            // Оновлюємо тільки ОДИН конкретний запис
+            DB::table('inventory_item')
+                ->where('id', $inventoryItem->id)
+                ->update(['quantity' => $newQuantity]);
+        } else {
+            // Якщо немає місця в існуючих стаках або предмет новий, створюємо новий запис
+            DB::table('inventory_item')->insert([
+                'inventory_id' => $inventory->id,
+                'item_id' => $existingItem->id,
+                'instance_id' => Str::uuid(),
+                'quantity' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        $this->dispatch('inventoryUpdated');
+    }
+
+
+
 
     public function levelUp()
     {

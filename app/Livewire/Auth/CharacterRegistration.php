@@ -32,7 +32,7 @@ class CharacterRegistration extends Component
     public function validateCurrentStep()
     {
         $rules = match ($this->step) {
-        1 => ['nickname' => 'required|string|max:255|unique:characters,nickname', 'email' => 'required|email|unique:users,email', 'password' => 'required|min:6'],
+            1 => ['nickname' => 'required|string|max:255|unique:characters,nickname', 'email' => 'required|email|unique:users,email', 'password' => 'required|min:6'],
             2 => ['race' => 'required'],
             3 => ['avatar' => 'required'],
             4 => ['class' => 'required'],

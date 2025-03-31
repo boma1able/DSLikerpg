@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Inventory;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use App\Models\Item;
 use App\Models\Equipment;
@@ -15,6 +16,10 @@ class InventoryEquipment extends Component
     public $user;
     public $items = [];
 
+    protected $listeners = [
+        'inventoryUpdated' => 'loadEquipment'
+    ];
+
     public function mount()
     {
         $this->user = auth()->user();
@@ -23,11 +28,9 @@ class InventoryEquipment extends Component
         $this->loadEquipment();
 
         if ($this->user && $this->user->inventory) {
-            // Завантажуємо items для інвентаря
-            $this->user->inventory->load('items');
             $this->items = $this->user->inventory->items;
         } else {
-            $this->items = [];
+            $this->items = collect();  // Пустий інвентар, якщо його немає
         }
     }
 
@@ -35,38 +38,59 @@ class InventoryEquipment extends Component
     {
         $this->equipment = Equipment::where('user_id', $this->user->id)
             ->where('character_id', $this->user->character->id)
-            ->with('item') // Завантажуємо пов'язані предмети
+            ->with('item') // Завантажуємо сам предмет
             ->get();
+
+        $inventory = auth()->user()->inventory;
+
+        if ($inventory) {
+            // Завантажуємо предмети з інвентаря
+            $this->items = $inventory->items;
+        } else {
+            $this->items = collect(); // Якщо інвентар не знайдений
+        }
     }
 
-    // Додайте новий слот для шолома в методі handleDrop
-    public function handleDrop($itemId)
+
+    public function handleDrop($itemId, $instanceId)
     {
-        $item = Item::find($itemId);
         $characterId = $this->user->character->id;
 
-        if (!$item) {
-            return;
+        // Отримуємо предмет з інвентаря разом із пивотними даними, враховуючи instance_id
+        $item = $this->user->inventory->items()
+            ->where('item_id', $itemId)
+            ->wherePivot('instance_id', $instanceId) // Фільтруємо за instance_id
+            ->first();
+
+        if (!$item || !$item->pivot || !$item->pivot->instance_id) {
+            return; // Якщо предмет чи пивот або instance_id не існують
         }
 
         // Масив дозволених слотів
-        $allowedSlots = ['helmet', 'weapon', 'chest', 'cloak', 'shield', 'gloves', 'leggings', 'boots', 'belt', 'ring', 'amulet', 'necklace', 'ingredient'];
+        $allowedSlots = ['helmet', 'weapon', 'chest', 'cloak', 'shield', 'gloves', 'leggings', 'boots', 'belt', 'ring', 'amulet', 'necklace'];
 
         // Перевіряємо, чи тип предмета входить у дозволені слоти
         if (!in_array($item->type, $allowedSlots)) {
             return;
         }
 
-        // Додаємо в еквіпмент
+        // Додаємо предмет в екіпіровку
         Equipment::create([
             'user_id' => $this->user->id,
             'character_id' => $characterId,
             'item_id' => $item->id,
-            'slot' => $item->type, // Використовуємо напряму
+            'instance_id' => $item->pivot->instance_id, // Вже гарантовано є
+            'slot' => $item->type,
         ]);
 
-        // Видаляємо предмет з інвентаря
-        $this->user->inventory->items()->detach($item->id);
+        // Якщо предмет стекується, можемо зменшити кількість
+        if ($item->stackable && $item->pivot->quantity > 1) {
+            $this->user->inventory->items()->updateExistingPivot($item->id, [
+                'quantity' => $item->pivot->quantity - 1,
+            ]);
+        } else {
+            $this->user->inventory->items()->wherePivot('instance_id', $instanceId)->detach($item->id);
+        }
 
         // Оновлюємо списки
         $this->loadEquipment();
@@ -77,19 +101,20 @@ class InventoryEquipment extends Component
     }
 
 
-    public function unequipItem($itemId)
+    public function unequipItem($itemId, $instanceId)
     {
+        // Перевіряємо наявність предмета в екіпіруванні з потрібним item_id і instance_id
         $equipment = Equipment::where('user_id', $this->user->id)
             ->where('character_id', $this->user->character->id)
             ->where('item_id', $itemId)
+            ->where('instance_id', $instanceId) // Фільтруємо за instance_id
             ->first();
 
         if ($equipment) {
             // Видаляємо предмет з екіпірування
             $equipment->delete();
 
-            // Додаємо назад у інвентар
-            $this->user->inventory->items()->attach($itemId);
+            $this->user->inventory->items()->attach($itemId, ['instance_id' => $instanceId]);
 
             // Оновлюємо списки
             $this->items = $this->user->inventory->items;
@@ -98,9 +123,14 @@ class InventoryEquipment extends Component
                 ->get();
 
             // Відправляємо подію у фронт
-            $this->dispatch('item-unequipped', ['itemId' => $itemId]);
+            $this->dispatch('itemUnequipped', ['itemId' => $itemId, 'instanceId' => $instanceId]);
+        } else {
+            $this->dispatch('error', 'Предмет не знайдений у екіпіруванні');
         }
     }
+
+
+
 
     public function render()
     {

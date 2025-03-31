@@ -11,7 +11,9 @@ class Equipment extends Model
         'user_id',
         'character_id',
         'item_id',
-        'slot'
+        'slot',
+        'instance_id',
+        'properties'
     ];
 
     // Відношення до предмета

@@ -9,7 +9,7 @@ class Monster extends Model
     public $timestamps = true;
 
     protected $fillable = [
-        'avatar', 'name', 'level', 'experience', 'position_x', 'position_y', 'health', 'mana', 'damage', 'damage_min', 'damage_max', 'hit_chance'
+        'avatar', 'name', 'level', 'experience', 'position_x', 'position_y', 'health', 'mana', 'damage', 'damage_min', 'damage_max', 'hit_chance', 'loot', 'quantity'
     ];
 
     // Метод для атаки монстра
@@ -43,4 +43,21 @@ class Monster extends Model
         // Якщо не потрапили
         return 0;
     }
+
+    public function rollLoot(Character $character)
+    {
+        $lootItems = $this->loot()->get();
+
+        foreach ($lootItems as $loot) {
+            if (rand(1, 100) <= $loot->drop_chance) {
+                $character->addToInventory($loot->item);
+            }
+        }
+    }
+
+    public function loot()
+    {
+        return $this->hasMany(MonsterLoot::class);
+    }
+
 }

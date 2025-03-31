@@ -11,17 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('equipment', function (Blueprint $table) {
+        Schema::create('monster_loot', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('character_id')->constrained()->onDelete('cascade');
+            $table->foreignId('monster_id')->constrained()->onDelete('cascade');
             $table->foreignId('item_id')->constrained()->onDelete('cascade');
-            $table->uuid('instance_id')->unique();
-            $table->json('properties')->nullable();
-            $table->string('slot');
+            $table->unsignedTinyInteger('drop_chance'); // 0-100%
             $table->timestamps();
         });
-
     }
 
     /**
@@ -29,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('equipment');
+        Schema::dropIfExists('monster_loot');
     }
 };

@@ -174,26 +174,26 @@
 
         </div>
 
-
-
-        <div class="w-170 m-5 p-5 bg-gray-400">
-{{--            <livewire:inventory-equipment/>--}}
-            <livewire:character.character-attributes :character="$character" wire:dispatch="closeStats"/>
-
+        <div class="w-full m-5 p-5 bg-gray-400">
+            <livewire:inventory-equipment/>
         </div>
 
-        <div class="w-auto my-5 mx-1 p-5 bg-gray-400">
-            <livewire:character.character-buffs :character="$character"/>
-        </div>
+{{--        <div class="w-170 m-5 p-5 bg-gray-400">--}}
+{{--            <livewire:character.character-attributes :character="$character" wire:dispatch="closeStats"/>--}}
+{{--        </div>--}}
 
-        <div class="w-auto m-5 p-5 bg-gray-400">
+{{--        <div class="w-auto my-5 mx-1 p-5 bg-gray-400">--}}
+{{--            <livewire:character.character-buffs :character="$character"/>--}}
+{{--        </div>--}}
+
+{{--        <div class="w-auto m-5 p-5 bg-gray-400">--}}
 {{--            <h2>Skills:</h2>--}}
 {{--           <livewire:character.character-skills/>--}}
 
-            <livewire:learn-school :character="$character" wire:dispatch="closeSchool"/>
+{{--            <livewire:learn-school :character="$character" wire:dispatch="closeSchool"/>--}}
 
 
-        </div>
+{{--        </div>--}}
 
     </div>
 

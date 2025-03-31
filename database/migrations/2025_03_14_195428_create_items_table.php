@@ -26,6 +26,7 @@ return new class extends Migration
             $table->integer('max_stack')->default(1);
             $table->float('weight')->default(0);
             $table->string('status')->nullable();
+            $table->integer('quantity')->default(1);
             $table->timestamps();
         });
 
