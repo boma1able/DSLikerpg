@@ -42,7 +42,7 @@
                      class="dropzone border w-20 h-20 item"
                      data-allowed-type="{{ $slot }}">
                     @foreach ($equipment->where('slot', $slot) as $eq)
-                        <div id="dropped-item-{{ $eq->item->id }}"
+                        <div id="dropped-item-{{ $eq->item->id }}-{{ $eq->instance_id }}"
                              data-instance-id="{{ $eq->instance_id ?? '' }}"
                              data-item-id="{{ $eq->item->id }}"
                              class="relative sortable-item cursor-pointer group equipped-item">
@@ -67,7 +67,7 @@
         <div class="w-auto h-102">
             <div id="sortable-list" class="flex flex-wrap justify-start content-start gap-0 p-1 w-102 h-full bg-gray-300 bg-cover">
                 @foreach ($items as $item)
-                    <div id="item-{{ $item->id }}"
+                    <div id="item-{{ $item->id }}-{{ $item->pivot->instance_id }}"
                          class="block relative sortable-item w-20 h-20 p-1 cursor-pointer group inventory-item"
                          data-instance-id="{{ $item->pivot->instance_id }}"
                          data-item-id="{{ $item->id }}"
@@ -133,11 +133,31 @@
                 group: 'shared',
                 onEnd: function (event) {
                     let itemElement = event.item;
-                    let itemId = itemElement.id.replace('item-', '');
-                    let instanceId = itemElement.getAttribute('data-instance-id'); // Отримуємо instanceId
+                    let itemId = itemElement.id;
+                    let instanceId = null; // Оголошуємо instanceId перед використанням
+
+                    if (itemId.startsWith('item-')) {
+                        // Розділяємо ID на частини
+                        let parts = itemId.replace('item-', '').split('-');
+                        let itemIdValue = parts[0];  // Перший елемент — це ID предмета (наприклад, "1")
+                        instanceId = parts.slice(1).join('-'); // Збираємо всі залишкові частини як instance_id
+
+                        console.log('Item ID:', itemIdValue, 'Instance ID:', instanceId);
+
+                        // Викликаємо метод Livewire для одягання предмета
+                        console.log('Calling Livewire method handleDrop');
+                    @this.call('handleDrop', itemIdValue, instanceId); // Тепер instanceId вже визначений
+                    } else {
+                        console.error('Invalid item ID:', itemId);
+                        return;
+                    }
+
+                    // Отримуємо інші атрибути
                     let itemType = itemElement.getAttribute('data-type');
                     let dropzone = event.to;
                     let allowedType = dropzone.getAttribute('data-allowed-type');
+
+                    console.log('Dropped item:', itemId, 'Instance ID:', instanceId, 'Item type:', itemType);
 
                     // Якщо тип предмета не підходить для слоту, повертаємо на місце
                     if (allowedType && itemType !== allowedType) {
@@ -145,10 +165,8 @@
                         return;
                     }
 
-                    console.log('Dropped item ID:', itemId, 'Instance ID:', instanceId, 'Type:', itemType);
-
-                    // Викликаємо метод Livewire для одягання предмета
-                @this.call('handleDrop', itemId, instanceId);
+                    // Оновлюємо інвентар на фронті без перезавантаження сторінки
+                    updateInventoryOnFront(itemId, instanceId);
                 }
             });
 
@@ -164,46 +182,55 @@
 
                         // Викликаємо метод Livewire для зняття предмета з екіпірування
                     @this.call('unequipItem', itemId, instanceId);
+
+                        // Оновлюємо інвентар на фронті без перезавантаження сторінки
+                        updateInventoryOnFront(itemId, instanceId);
                     }
                 });
             });
         });
 
-        document.addEventListener('livewire:load', function () {
-            Livewire.on('item-dropped', (event) => {
-                const itemId = event.itemId;
-                const itemType = event.itemType;
+        // Функція для оновлення інвентаря на фронті
+        function updateInventoryOnFront(itemId, instanceId) {
+            // Знайдемо елемент інвентаря, який потрібно оновити
+            let inventoryItem = document.querySelector(`#item-${itemId}-${instanceId}`);
+            let equippedItem = document.querySelector(`#dropped-item-${itemId}-${instanceId}`);
 
-                let listItem = document.createElement('div');
-                listItem.id = 'dropped-item-' + itemId;
-                listItem.classList.add('sortable-item');
-                listItem.textContent = "Item " + itemId;
+            if (inventoryItem) {
+                // Якщо предмет є в інвентарі, заміняємо його
+                let newItem = document.createElement('div');
+                newItem.id = `item-${itemId}-${instanceId}`; // Унікальний ID
+                newItem.classList.add('sortable-item');
+                newItem.textContent = `Item ${itemId}`; // Оновіть це відповідно до вашої логіки
 
-                let dropzone = document.querySelector(`[data-allowed-type="${itemType}"]`);
-                if (dropzone) {
-                    dropzone.appendChild(listItem);
-                } else {
-                    console.error("Dropzone for type", itemType, "not found!");
-                }
-            });
+                // Додати необхідні атрибути
+                newItem.setAttribute('data-instance-id', instanceId);
+                newItem.setAttribute('data-item-id', itemId);
+                newItem.setAttribute('data-type', 'weapon');  // Змініть на реальний тип
 
-            Livewire.on('item-unequipped', (event) => {
-                const itemId = event.itemId;
+                inventoryItem.replaceWith(newItem); // Заміна інвентаря
+            }
 
-                let equippedItem = document.getElementById('dropped-item-' + itemId);
-                if (equippedItem) {
-                    equippedItem.remove();
-                }
+            if (equippedItem) {
+                // Якщо предмет є в екіпіруванні, заміняємо його
+                let newEquippedItem = document.createElement('div');
+                newEquippedItem.id = `dropped-item-${itemId}-${instanceId}`; // Унікальний ID
+                newEquippedItem.classList.add('sortable-item');
+                newEquippedItem.textContent = `Item ${itemId}`; // Оновіть це відповідно до вашої логіки
 
-                let listItem = document.createElement('div');
-                listItem.id = 'item-' + itemId;
-                listItem.classList.add('sortable-item');
-                listItem.textContent = "Item " + itemId;
+                // Додати необхідні атрибути
+                newEquippedItem.setAttribute('data-instance-id', instanceId);
+                newEquippedItem.setAttribute('data-item-id', itemId);
+                newEquippedItem.setAttribute('data-type', 'weapon');  // Змініть на реальний тип
 
-                document.getElementById('sortable-list').appendChild(listItem);
-            });
-        });
+                equippedItem.replaceWith(newEquippedItem); // Заміна предмета в екіпіруванні
+            }
+        }
+
     </script>
+
+
+
 
 
     <script>

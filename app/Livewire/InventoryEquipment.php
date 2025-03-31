@@ -74,7 +74,18 @@ class InventoryEquipment extends Component
             return;
         }
 
-        // Додаємо предмет в екіпіровку
+        // Перевірка чи є вже предмет в цьому слоті
+        $existingEquipment = Equipment::where('user_id', $this->user->id)
+            ->where('character_id', $characterId)
+            ->where('slot', $item->type)
+            ->first();
+
+        if ($existingEquipment) {
+            // Якщо предмет є, то знімаємо його та повертаємо в інвентар
+            $this->unequipItem($existingEquipment->item_id, $existingEquipment->instance_id);
+        }
+
+        // Додаємо новий предмет в екіпіровку
         Equipment::create([
             'user_id' => $this->user->id,
             'character_id' => $characterId,
@@ -89,17 +100,30 @@ class InventoryEquipment extends Component
                 'quantity' => $item->pivot->quantity - 1,
             ]);
         } else {
+            // Видаляємо предмет з інвентаря
             $this->user->inventory->items()->wherePivot('instance_id', $instanceId)->detach($item->id);
         }
 
-        // Оновлюємо списки
+        // Оновлюємо екіпіровку
         $this->loadEquipment();
-        $this->items = $this->user->inventory->items;
+
+        // Оновлюємо інвентар
+        $this->loadItems(); // Переконайтеся, що у вас є метод для завантаження інвентаря
 
         // Відправляємо подію для оновлення UI
         $this->dispatch('itemEquipped', $item->id);
     }
 
+    public function loadItems()
+    {
+        $inventory = auth()->user()->inventory;
+        if ($inventory) {
+            // Завантажуємо актуальний інвентар
+            $this->items = $inventory->items;
+        } else {
+            $this->items = collect(); // Якщо інвентар не знайдений
+        }
+    }
 
     public function unequipItem($itemId, $instanceId)
     {
@@ -114,6 +138,7 @@ class InventoryEquipment extends Component
             // Видаляємо предмет з екіпірування
             $equipment->delete();
 
+            // Повертаємо предмет в інвентар
             $this->user->inventory->items()->attach($itemId, ['instance_id' => $instanceId]);
 
             // Оновлюємо списки
@@ -128,9 +153,6 @@ class InventoryEquipment extends Component
             $this->dispatch('error', 'Предмет не знайдений у екіпіруванні');
         }
     }
-
-
-
 
     public function render()
     {

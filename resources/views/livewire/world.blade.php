@@ -178,9 +178,9 @@
             <livewire:inventory-equipment/>
         </div>
 
-{{--        <div class="w-170 m-5 p-5 bg-gray-400">--}}
-{{--            <livewire:character.character-attributes :character="$character" wire:dispatch="closeStats"/>--}}
-{{--        </div>--}}
+        <div class="w-170 m-5 p-5 bg-gray-400">
+            <livewire:character.character-attributes :character="$character" wire:dispatch="closeStats"/>
+        </div>
 
 {{--        <div class="w-auto my-5 mx-1 p-5 bg-gray-400">--}}
 {{--            <livewire:character.character-buffs :character="$character"/>--}}
