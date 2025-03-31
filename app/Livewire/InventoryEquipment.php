@@ -154,6 +154,10 @@ class InventoryEquipment extends Component
         }
     }
 
+
+
+
+
     public function render()
     {
         return view('livewire.inventory-equipment');

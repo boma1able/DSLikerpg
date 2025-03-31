@@ -95,6 +95,10 @@
                     </div>
                 @endforeach
             </div>
+
+            <div id="trash-zone" class="trash-zone w-20 h-20 border">
+                Перетягніть сюди, щоб видалити
+            </div>
         </div>
 
 
@@ -142,13 +146,13 @@
                         let itemIdValue = parts[0];  // Перший елемент — це ID предмета (наприклад, "1")
                         instanceId = parts.slice(1).join('-'); // Збираємо всі залишкові частини як instance_id
 
-                        console.log('Item ID:', itemIdValue, 'Instance ID:', instanceId);
+                        // console.log('Item ID:', itemIdValue, 'Instance ID:', instanceId);
 
                         // Викликаємо метод Livewire для одягання предмета
-                        console.log('Calling Livewire method handleDrop');
+                        // console.log('Calling Livewire method handleDrop');
                     @this.call('handleDrop', itemIdValue, instanceId); // Тепер instanceId вже визначений
                     } else {
-                        console.error('Invalid item ID:', itemId);
+                        // console.error('Invalid item ID:', itemId);
                         return;
                     }
 
@@ -157,7 +161,7 @@
                     let dropzone = event.to;
                     let allowedType = dropzone.getAttribute('data-allowed-type');
 
-                    console.log('Dropped item:', itemId, 'Instance ID:', instanceId, 'Item type:', itemType);
+                    // console.log('Dropped item:', itemId, 'Instance ID:', instanceId, 'Item type:', itemType);
 
                     // Якщо тип предмета не підходить для слоту, повертаємо на місце
                     if (allowedType && itemType !== allowedType) {
@@ -175,10 +179,27 @@
                 new Sortable(dropzone, {
                     group: 'shared',
                     onEnd: function (event) {
-                        let itemId = event.item.id.replace('dropped-item-', '');
-                        let instanceId = event.item.getAttribute('data-instance-id'); // Отримуємо instanceId
+                        let itemElement = event.item;
+
+                        // Перевіряємо, що itemElement має правильний ID
+                        let itemIdWithInstance = itemElement.id.replace('dropped-item-', '');
+                        if (!itemIdWithInstance) {
+                            console.error('Item ID is missing for the dropped item.');
+                            return;
+                        }
+
+                        // Розділяємо комбінований ID на два окремих параметри (itemId і instanceId)
+                        let parts = itemIdWithInstance.split('-');
+                        let itemId = parts[0];  // Перше значення - це ID предмета
+                        let instanceId = parts.slice(1).join('-'); // Збираємо решту як instanceId
 
                         console.log('Unequipping item ID:', itemId, 'Instance ID:', instanceId);
+
+                        // Перевіряємо наявність instanceId
+                        if (!instanceId) {
+                            console.error('Instance ID is missing for item ID:', itemId);
+                            return;
+                        }
 
                         // Викликаємо метод Livewire для зняття предмета з екіпірування
                     @this.call('unequipItem', itemId, instanceId);
@@ -188,6 +209,9 @@
                     }
                 });
             });
+
+
+
         });
 
         // Функція для оновлення інвентаря на фронті
