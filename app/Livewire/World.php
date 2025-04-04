@@ -61,7 +61,8 @@ class World extends Component
         'resting' => 'startResting',
         'respawnMonster' => 'dispatchRespawnMonster',
         'stopResting' => 'interruptResting',
-        'logUpdated' => 'handleLogUpdated'
+        'logUpdated' => 'handleLogUpdated',
+        'logMessage' => 'addLogMessage'
     ];
 
     public function updateCharacterPositionForMonster($characterX, $characterY)
@@ -206,6 +207,7 @@ class World extends Component
         $currentTime = now()->format('H:i:s');
         $this->log[] = "<span class='inline-block w-[45px] text-[#a0a0a0] mr-2 text-xs'>{$currentTime}</span>{$message}";
         $this->dispatch('addLogMessage', $message);
+        $this->dispatch('inventoryUpdated');
     }
 
     public function handleLogUpdated($log)
@@ -651,8 +653,6 @@ class World extends Component
 
         $this->dispatch('inventoryUpdated');
     }
-
-
 
 
     public function levelUp()

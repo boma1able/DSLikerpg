@@ -15,8 +15,10 @@ class InventoryEquipment extends Component
     public $equipment;
     public $user;
     public $items = [];
+    public $log = [];
 
     protected $listeners = [
+        'addLogMessage',
         'inventoryUpdated' => 'loadEquipment'
     ];
 
@@ -30,7 +32,7 @@ class InventoryEquipment extends Component
         if ($this->user && $this->user->inventory) {
             $this->items = $this->user->inventory->items;
         } else {
-            $this->items = collect();  // Пустий інвентар, якщо його немає
+            $this->items = collect();
         }
     }
 
@@ -44,10 +46,9 @@ class InventoryEquipment extends Component
         $inventory = auth()->user()->inventory;
 
         if ($inventory) {
-            // Завантажуємо предмети з інвентаря
             $this->items = $inventory->items;
         } else {
-            $this->items = collect(); // Якщо інвентар не знайдений
+            $this->items = collect();
         }
     }
 
@@ -56,14 +57,13 @@ class InventoryEquipment extends Component
     {
         $characterId = $this->user->character->id;
 
-        // Отримуємо предмет з інвентаря разом із пивотними даними, враховуючи instance_id
         $item = $this->user->inventory->items()
             ->where('item_id', $itemId)
-            ->wherePivot('instance_id', $instanceId) // Фільтруємо за instance_id
+            ->wherePivot('instance_id', $instanceId)
             ->first();
 
         if (!$item || !$item->pivot || !$item->pivot->instance_id) {
-            return; // Якщо предмет чи пивот або instance_id не існують
+            return;
         }
 
         // Масив дозволених слотів
@@ -118,44 +118,59 @@ class InventoryEquipment extends Component
     {
         $inventory = auth()->user()->inventory;
         if ($inventory) {
-            // Завантажуємо актуальний інвентар
             $this->items = $inventory->items;
         } else {
-            $this->items = collect(); // Якщо інвентар не знайдений
+            $this->items = collect();
         }
     }
 
     public function unequipItem($itemId, $instanceId)
     {
-        // Перевіряємо наявність предмета в екіпіруванні з потрібним item_id і instance_id
         $equipment = Equipment::where('user_id', $this->user->id)
             ->where('character_id', $this->user->character->id)
             ->where('item_id', $itemId)
-            ->where('instance_id', $instanceId) // Фільтруємо за instance_id
+            ->where('instance_id', $instanceId)
             ->first();
 
         if ($equipment) {
-            // Видаляємо предмет з екіпірування
             $equipment->delete();
-
-            // Повертаємо предмет в інвентар
             $this->user->inventory->items()->attach($itemId, ['instance_id' => $instanceId]);
 
-            // Оновлюємо списки
             $this->items = $this->user->inventory->items;
             $this->equipment = Equipment::where('user_id', $this->user->id)
                 ->where('character_id', $this->user->character->id)
                 ->get();
 
-            // Відправляємо подію у фронт
             $this->dispatch('itemUnequipped', ['itemId' => $itemId, 'instanceId' => $instanceId]);
-        } else {
-            $this->dispatch('error', 'Предмет не знайдений у екіпіруванні');
         }
     }
 
+//182	1	1	6251c205-c838-43e4-a57d-a4edd9afcb22	NULL	1	2025-03-31 14:07:45	2025-03-31 14:07:45
 
+    public function deleteItem($itemIdValue, $instanceId)
+    {
+        $user = auth()->user();
 
+        if (!$user->inventory) {
+            return;
+        }
+
+        $item = $user->inventory->items()
+            ->wherePivot('instance_id', $instanceId)
+            ->wherePivot('item_id', $itemIdValue)
+            ->first();
+
+        if (!$item) {
+            return;
+        }
+
+        $user->inventory->items()->wherePivot('instance_id', $instanceId)->detach();
+
+        $itemName = $item->name;
+        $message = "<span class='text-gray-400'>Ви викинули $itemName з інвентаря!</span>";
+        $this->dispatch('logMessage', $message);
+        $this->loadEquipment();
+    }
 
 
     public function render()
