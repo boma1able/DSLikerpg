@@ -33,7 +33,7 @@
 @endphp
 
 <div class="flex">
-    <div x-data class="flex w-auto">
+    <div class="flex w-auto">
 
         <!-- Область екіпірування -->
         <div class="grid grid-cols-3 gap-y-4 w-70">
@@ -63,22 +63,21 @@
             @endforeach
         </div>
 
-        <!-- Інвентар -->
+        <!-- Інвентар  inv-grid.png-->
         <div class="w-auto h-102">
-            <div id="sortable-list" class="flex flex-wrap justify-start content-start gap-0 p-1 w-102 h-full bg-gray-300 bg-cover">
+            <div id="sortable-list" class="relative flex flex-wrap justify-start content-start gap-x-1 p-1 w-102 h-full bg-gray-300 bg-cover"
+            style="background: url({{ asset('storage/ui/inv-grid.png') }}); background-position: 0 0, 46px 0, 0 46px, 46px 46px; ">
                 @foreach ($items as $item)
                     @if ($item->pivot)
-                    <div id="item-{{ $item->id }}-{{ $item->pivot->instance_id }}"
-                         class="block relative sortable-item w-20 h-20 p-1 cursor-pointer group inventory-item"
+                        <div id="item-{{ $item->id }}-{{ $item->pivot->instance_id }}"
+                         class="block relative sortable-item w-20 h-20 cursor-pointer group inventory-item"
                          data-instance-id="{{ $item->pivot->instance_id }}"
                          data-item-id="{{ $item->id }}"
                          data-type="{{ $item->type }}">
                         <img src="{{ $item->image }}" alt="">
-{{--                    {{dd($item)}}--}}
-                        <!-- Оновлена частина для кількості -->
                         @if ($item->stackable)
                             <div class="absolute top-0 right-0 bg-gray-600 text-white text-xs p-1 rounded">
-                                x{{ $item->pivot->quantity }}  <!-- Показуємо кількість для stackable предметів -->
+                                x{{ $item->pivot->quantity }}
                             </div>
                         @endif
 
