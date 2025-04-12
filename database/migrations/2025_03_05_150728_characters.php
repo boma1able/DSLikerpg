@@ -67,6 +67,7 @@ return new class extends Migration
             $table->integer('base_intelligence')->nullable();
             $table->integer('intelligence')->nullable();
             $table->integer('gold')->default(0);
+            $table->unsignedInteger('bank_gold')->default(0);
             $table->integer('position_x')->default(5);
             $table->integer('position_y')->default(4);
             $table->integer('offset_x')->default(-5);

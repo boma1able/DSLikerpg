@@ -9,8 +9,11 @@ class GoldManager extends Component
 {
     public $characterId;
     public $gold;
+    public $bankGold;
 
-    protected $listeners = ['goldUpdated' => 'refreshGold'];
+    protected $listeners = [
+        'goldUpdated' => 'refreshGold',
+    ];
 
     public function mount($characterId)
     {
@@ -19,12 +22,14 @@ class GoldManager extends Component
         $character = Character::find($this->characterId);
         if ($character) {
             $this->gold = $character->gold;
+            $this->bankGold = $character->bank_gold;
         }
     }
 
-    public function refreshGold($goldAmount)
+    public function refreshGold($goldAmount, $bankGoldAmount)
     {
         $this->gold = $goldAmount;
+        $this->bankGold = $bankGoldAmount;
     }
 
     public function render()

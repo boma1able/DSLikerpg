@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use App\Services\MonsterEncounterService;
+use Livewire\Attributes\On;
+
 
 class World extends Component
 {
@@ -30,13 +32,14 @@ class World extends Component
     public $level;
     public $requiredExperience;
     public $gold;
+    public $bank_gold;
 
     public ?Monster $monster = null;
     public $currentMonster = null;
     public $currentTargetMonsterId;
     public array $monsters = [];
     public $showMonsterHealth = false;
-    public bool $monsterAttacked = false;
+    public ?int $attackedMonsterId = null;
     public bool $inBattle = false;
     public array $log = [];
     public string $message = '';
@@ -50,7 +53,7 @@ class World extends Component
     public bool $welcomeMessageShown = false;
     public array $objects = [];
     public $showStats = false;
-    public $showSchool = false;
+    public $activeInteraction = null;
 
     protected $listeners = [
         'schoolUpdated' => 'updateSchool',
@@ -91,10 +94,8 @@ class World extends Component
         $inventory = auth()->user()->inventory;
 
         if ($inventory) {
-            // Якщо інвентар існує, завантажуємо предмети
             $this->items = $inventory->items;
         } else {
-            // Якщо інвентар відсутній, присвоюємо порожню колекцію
             $this->items = collect();
         }
 
@@ -130,6 +131,7 @@ class World extends Component
             'avatar' => $character->avatar,
             'class' => $character->class,
             'gold' => $character->gold,
+            'bank_gold' => $character->bank_gold,
             'damage' => $character->damage,
             'hit_chance' => $character->hit_chance,
             'magic_damage' => $character->magic_damage,
@@ -166,6 +168,13 @@ class World extends Component
             'position_x' => 4,
             'position_y' => 3,
             'type' => 'skills',
+        ];
+
+        $this->objects[] = [
+            'name' => 'Банк',
+            'position_x' => 7,
+            'position_y' => 5,
+            'type' => 'bank',
         ];
 
         $this->updateSchool(
@@ -507,6 +516,8 @@ class World extends Component
             return;
         }
 
+        $this->attackedMonsterId = $monsterId;
+
         $this->character = Character::find($this->character['id'])->toArray();
 
         // Шукаємо монстра за ID
@@ -534,6 +545,8 @@ class World extends Component
         if ($monster['health'] <= 0) {
             $this->addLogMessage("Ви перемогли {$monster['name']}!");
 
+            $this->attackedMonsterId = null;
+
             $xpGained = $this->calculateExperienceGain($this->character, $monster);
             $this->experience += $xpGained;
             $this->addLogMessage("Ви отримали {$xpGained} exp!");
@@ -545,7 +558,7 @@ class World extends Component
             $character = Character::find($this->character['id']);
             $character->gold = $this->character['gold'];
             $character->save();
-            $this->dispatch('goldUpdated', $this->character['gold']);
+            $this->dispatch('goldUpdated', $this->character['gold'], $this->character['bank_gold']);
             $this->addLogMessage("Ви отримали $goldAmount золота від {$monster['name']}!");
 
             $monster = Monster::find($monsterId);
@@ -582,6 +595,7 @@ class World extends Component
             $this->inBattle = false;
             $this->dispatch('showReviveButton');
             $this->showReviveModal = true;
+            $this->attackedMonsterId = null;
         }
 
         $this->updateCharacterInDatabase();
@@ -799,7 +813,7 @@ class World extends Component
 
     public function removeMonsterBorder()
     {
-        $this->monsterAttacked = false;
+        $this->attackedMonsterId = null;
     }
 
     public function logout()
@@ -818,14 +832,25 @@ class World extends Component
         $this->showStats = false;
     }
 
-    public function openSchool()
+    public function getObjectUnderCharacter()
     {
-        $this->showSchool = true;
+        foreach ($this->objects as $object) {
+            if ($object['position_x'] === $this->characterPositionX && $object['position_y'] === $this->characterPositionY) {
+                return $object;
+            }
+        }
+        return null;
     }
 
-    public function closeSchool()
+    public function openInteraction($objectType)
     {
-        $this->showSchool = false;
+        $this->activeInteraction = $objectType;
+    }
+
+    #[On('closeInteraction')]
+    public function closeInteraction()
+    {
+        $this->activeInteraction = null;
     }
 
     public function render()

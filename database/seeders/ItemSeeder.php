@@ -10,7 +10,7 @@ class ItemSeeder extends Seeder
     public function run()
     {
         Item::insert([
-            ['name' => 'Залізний меч', 'image' => 'items/swords/icon-sword.jpg', 'level' => '1', 'type' => 'weapon', 'rarity' => 'common', 'stackable' => false, 'max_stack' => 1, 'weight' => 5],
+            ['name' => 'Залізний меч', 'image' => 'items/swords/icon-sword.png', 'level' => '1', 'type' => 'weapon', 'rarity' => 'common', 'stackable' => false, 'max_stack' => 1, 'weight' => 5],
             ['name' => 'Деревʼяний щит', 'image' => 'items/shields/wooden-shield.jpg', 'level' => '1', 'type' => 'shield', 'rarity' => 'common', 'stackable' => false, 'max_stack' => 1, 'weight' => 3],
             ['name' => 'Залізний шолом', 'image' => 'items/helmets/iron-helmet.jpg', 'level' => '1', 'type' => 'helmet', 'rarity' => 'common', 'stackable' => false, 'max_stack' => 1, 'weight' => 2],
             ['name' => 'Плащь з тряпок', 'image' => 'items/cloaks/ragged-cloak.jpg', 'level' => '1', 'type' => 'cloak', 'rarity' => 'common', 'stackable' => false, 'max_stack' => 1, 'weight' => 0.5],

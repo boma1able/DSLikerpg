@@ -10,7 +10,9 @@
                 @foreach ($monsters as $monster)
                     @if (-$monster['position_x'] === $offsetX && -$monster['position_y'] === $offsetY)
                         <div wire:click="startBattle({{ $monster['id'] }})" class="group" style="position:relative;">
-                            <div style="position: absolute; width: 100%; height: calc(100% + 3px); border: {{ $monsterAttacked ? '3px solid red' : 'none' }};"></div>
+                            <div style="position: absolute; z-index: 9; width: 100%; height: calc(100% + 2px);"
+                                class="@if($attackedMonsterId === $monster['id']) border-2 border-red-500 @endif">
+                            </div>
                             <img src="{{ asset('storage/monsters/' . $monster['avatar']) }}"
                                  class="block w-[80px] h-[110px] object-cover" alt="Character Image">
                             <div class="flex relative bg-[#6767677d] text-[8px] text-black">
@@ -103,11 +105,9 @@
                                             @endif
 
                                             @foreach(collect($objects)->filter(fn($obj) => $obj['position_x'] === $x && $obj['position_y'] === $y) as $object)
-                                                <span class="relative text-xl">
-                                                    @if ($object['type'] === 'star') ⭐ @endif
-                                                    @if ($object['type'] === 'skills') ⚔ @endif
-                                                </span>
+                                                <livewire:map-objects :object="$object" :wire:key="'map-object-'.$x.'-'.$y.'-'.$loop->index"/>
                                             @endforeach
+
                                         </div>
                                     @endforeach
                                 @endforeach
@@ -121,8 +121,6 @@
                 <div style="padding: 15px 0 0; color: #eee; font-size: 12px; line-height: 20px;">
                     <ul>
                         <li class="flex items-center">
-                            <span style="display:inline-block;width: 100px;">Gold:</span>
-                            <svg height="200px" width="200px" version="1.1" class="w-4 h-4 mr-1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 511.882 511.882" xml:space="preserve" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <polygon style="fill:#F6BB42;" points="350.216,176.572 278.374,158.615 37.038,264.123 0,338.207 125.753,374.324 386.13,258.531 "></polygon> <polygon style="fill:#FFCE54;" points="350.216,176.572 107.756,284.345 125.753,374.324 386.13,258.531 "></polygon> <polygon style="fill:#E8AA3D;" points="107.756,284.345 37.038,264.123 0.015,338.207 125.753,374.324 "></polygon> <polygon style="fill:#F6BB42;" points="475.969,212.682 404.127,194.717 162.791,300.232 125.753,374.324 251.504,410.41 511.882,294.625 "></polygon> <polygon style="fill:#FFCE54;" points="475.969,212.682 233.508,320.431 251.504,410.41 511.882,294.625 "></polygon> <polygon style="fill:#E8AA3D;" points="233.508,320.431 162.791,300.232 125.753,374.324 251.504,410.41 "></polygon> <polygon style="fill:#F6BB42;" points="396.316,119.429 324.488,101.473 103.867,198.435 66.843,272.519 192.596,308.621 432.245,201.379 "></polygon> <polygon style="fill:#FFCE54;" points="396.316,119.429 174.6,218.641 192.596,308.621 432.245,201.379 "></polygon> <polygon style="fill:#E8AA3D;" points="174.6,218.641 103.867,198.435 66.843,272.519 192.596,308.621 "></polygon> </g></svg>
 
                             <livewire:gold-manager :characterId="$character['id']"/>
 
@@ -160,13 +158,24 @@
                         <button wire:click="openStats" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700 cursor-pointer">
                             Атрибути
                         </button>
-                        <button wire:click="openSchool"
-                                class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700 cursor-pointer"
-                                @if($this->characterPositionX !== 4 || $this->characterPositionY !== 3)style="opacity: .5"@endif
-                                @disabled($this->characterPositionX !== 4 || $this->characterPositionY !== 3)
-                            >
-                            Школа
-                        </button>
+
+                        @php
+                            $object = $this->getObjectUnderCharacter();
+                        @endphp
+
+                        @if ($object)
+                            <button wire:click="openInteraction('{{ $object['type'] ?? '' }}')"
+                                    class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700 cursor-pointer"
+                                    @if($this->characterPositionX !== $object['position_x'] || $this->characterPositionY !== $object['position_y'])
+                                    style="opacity: .5"
+                                    @endif
+                                    @disabled($this->characterPositionX !== $object['position_x'] || $this->characterPositionY !== $object['position_y'])>
+                                Open {{ ucfirst($object['type']) }}
+                            </button>
+                        @endif
+
+
+
                     </div>
 
                 </div>
@@ -178,9 +187,9 @@
             <livewire:inventory-equipment/>
         </div>
 
-        <div class="w-170 m-5 p-5 bg-gray-400">
-            <livewire:character.character-attributes :character="$character" wire:dispatch="closeStats"/>
-        </div>
+{{--        <div class="w-170 m-5 p-5 bg-gray-400">--}}
+{{--            <livewire:character.character-attributes :character="$character" wire:dispatch="closeStats"/>--}}
+{{--        </div>--}}
 
 {{--        <div class="w-auto my-5 mx-1 p-5 bg-gray-400">--}}
 {{--            <livewire:character.character-buffs :character="$character"/>--}}
@@ -229,9 +238,27 @@
                 </div>
             @endif
 
-            @if ($showSchool)
+            @if ($activeInteraction === 'skills')
                 <div class="fixed inset-0 flex items-center justify-center bg-black/50 z-1">
-                    <livewire:learn-school :character="$character" wire:dispatch="closeSchool"/>
+                    <div class="relative w-auto m-5 p-5 bg-gray-400">
+                        <livewire:learn-school :character="$character"/>
+                        <button wire:click="$dispatch('closeInteraction')" class="absolute top-2 right-2 cursor-pointer">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            @elseif ($activeInteraction === 'bank')
+                <div class="fixed inset-0 flex items-center justify-center bg-black/50 z-1">
+                    <div class="relative w-auto m-5 p-5 bg-gray-400">
+                        <livewire:bank-manager :characterId="$character['id']"/>
+                        <button wire:click="$dispatch('closeInteraction')" class="absolute top-2 right-2 cursor-pointer">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             @endif
         </div>
